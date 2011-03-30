@@ -1,0 +1,4 @@
+[Project]
+Name=uenclient
+Manager=KDevCMakeManager
+VersionControl=kdevgit
