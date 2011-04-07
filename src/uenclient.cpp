@@ -5,15 +5,19 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QAction>
 
+#include "chatdialog.h"
+
 uenclient::uenclient()
 {
-    QLabel* l = new QLabel( this );
-    l->setText( "Hello World!" );
-    setCentralWidget( l );
+    setWindowTitle(tr("UeN Client"));
     QAction* a = new QAction(this);
     a->setText( "Quit" );
     connect(a, SIGNAL(triggered()), SLOT(close()) );
     menuBar()->addMenu( "File" )->addAction( a );
+    
+    tabWidget = new QTabWidget;
+    tabWidget->addTab(new ChatDialog(), tr("Chat"));
+    setCentralWidget(tabWidget);
 }
 
 uenclient::~uenclient()

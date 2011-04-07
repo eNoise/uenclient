@@ -26,7 +26,9 @@ endif (LOCAL_GLOOX)
 
 
 set(uenclient_SRCS 
-	      src/uenclient.cpp 
+	      src/uenclient.cpp
+	      src/chatdialog.cpp
+	      src/helper.cpp
 	      src/main.cpp)
 
 
