@@ -141,7 +141,7 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 			}
 		}
 	}
-	else if(presence.presence() == gloox::Presence::Available)
+	else
 	{
 		//part.nick = new gloox::JID();
 		//memcpy(part->nick, participant.nick, sizeof(gloox::JID));
