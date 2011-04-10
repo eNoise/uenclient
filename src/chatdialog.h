@@ -31,8 +31,12 @@
 #include <gloox/mucroom.h>
 #include <gloox/mucroomhandler.h>
 #include <gloox/message.h>
+#include <gloox/presence.h>
 
 #include <pthread.h>
+#include <vector>
+
+#include <boost/concept_check.hpp>
 
 class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloox::MUCRoomHandler, 
 		   public gloox::MessageHandler
@@ -41,6 +45,46 @@ Q_OBJECT
 public:
     ChatDialog();
     virtual ~ChatDialog();
+    
+    struct Participant : public gloox::MUCRoomParticipant
+    {
+		gloox::JID* nick;
+		gloox::MUCRoomAffiliation affiliation;
+		gloox::MUCRoomRole role;
+		gloox::JID* jid;
+		int flags;
+		std::string reason;
+		gloox::JID* actor;             
+		std::string newNick;
+		std::string status;
+		gloox::JID* alternate;           
+ 
+		QString color;
+		QString nickresque;
+		QString roomjid;
+	   
+	   Participant(const gloox::MUCRoomParticipant& pr) :
+		actor(pr.actor),
+		affiliation(pr.affiliation),
+		alternate(pr.alternate),
+		flags(pr.flags),
+		jid(pr.jid),
+		newNick(pr.newNick),
+		nick(pr.nick),
+		reason(pr.reason),
+		role(pr.role),
+		status(pr.status)
+	   {}
+	   
+	   void colorGenerate()
+	   {
+		  char hex[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+		  //generate color
+		  for(int i=0; i<6; i++)
+			color[i] = hex[rand() % 16];
+		  //color[6] = '\0';     
+	   }
+    };
 private:
     QListWidget* inChatList;
     QLineEdit* inputLine;
@@ -68,11 +112,17 @@ private:
     void handleMUCInfo (gloox::MUCRoom *thisroom, int features, const std::string &name, const gloox::DataForm *infoForm){}
     void handleMUCItems (gloox::MUCRoom *thisroom, const gloox::Disco::ItemList &items){}
 
+    //Participant currentParticipant;
+    std::vector<Participant> participants;
+protected:
+  void keyPressEvent(QKeyEvent *event);
 signals:
-  void reciveMessage(const QString& msg, const QString& from);
+  void reciveMessage(QString msg, const QString& from, const QString& nick);
+  void rebuildUserList();
 public slots:
   void sendMessage();
-  void addToMessageBox(const QString& msg, const QString& from);
+  void addToMessageBox(QString msg, const QString& from, const QString& nick);
+  void updateUserList();
 };
 
 #endif // CHATDIALOG_H

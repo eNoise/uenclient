@@ -19,9 +19,15 @@
 
 #include "chatdialog.h"
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QKeyEvent>
 #include "helper.h"
+#include "chatuseritem.h"
+
+#include <algorithm>
+#include <boost/foreach.hpp>
 
 ChatDialog::ChatDialog()
 {
@@ -29,17 +35,24 @@ ChatDialog::ChatDialog()
 	inputLine = new QLineEdit();
 	chatBox = new QTextBrowser();
 
-	QHBoxLayout* main = new QHBoxLayout();
-	QVBoxLayout* chat = new QVBoxLayout();
+	ChatUserItem* userListDelegate = new ChatUserItem();
+	inChatList->setItemDelegate(userListDelegate);
+	
+	QHBoxLayout* chat = new QHBoxLayout();
+	QVBoxLayout* main = new QVBoxLayout();
+	
+	inChatList->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+	
 	chat->addWidget(chatBox);
-	chat->addWidget(inputLine);
+	chat->addWidget(inChatList);
 	main->addLayout(chat);
-	main->addWidget(inChatList);
+	main->addWidget(inputLine);
 	setLayout(main);
 	
 	connect(inputLine, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
-	connect(this, SIGNAL(reciveMessage(QString,QString)), this, SLOT(addToMessageBox(QString,QString)));
-	
+	//connect(inputLine, SIGNAL(), this, SLOT(sendMessage()));
+	connect(this, SIGNAL(reciveMessage(QString,QString,QString)), this, SLOT(addToMessageBox(QString,QString,QString)));
+	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
 	client = new gloox::Client(gloox::JID("pichi@jabber.uruchie.org/UeNClient"), "iampichi");
 	//client->disco()->setVersion("UeN Client", "0.1.0");
 	client->registerConnectionListener( this );
@@ -48,6 +61,37 @@ ChatDialog::ChatDialog()
 	
 	if(pthread_create(&glooxthread, NULL, &ChatDialog::glooxconnect, (void*)this) > 0)
 		return;
+}
+
+void ChatDialog::keyPressEvent(QKeyEvent *event)
+{
+	switch(event->key())
+	{
+	  case Qt::Key_Space:
+	    qDebug() << "done!";
+	    break;
+	}
+}
+
+void ChatDialog::updateUserList()
+{
+	inChatList->clear();
+	int i=1;
+	BOOST_FOREACH(Participant& part, participants)
+	{
+		QListWidgetItem* item = new QListWidgetItem;
+		QVariant nick;
+		nick.setValue(part.nickresque);
+		QVariant status;
+		status.setValue(QString().fromUtf8(part.status.c_str()));
+		QVariant color;
+		color.setValue(part.color);
+		item->setData(ChatUserItem::userNick, nick);
+		item->setData(ChatUserItem::userStatus, status);
+		item->setData(ChatUserItem::userColor, color);
+		inChatList->insertItem(i, item);
+		i++;
+	}
 }
 
 void* ChatDialog::glooxconnect(void* context) 	
@@ -69,7 +113,7 @@ void ChatDialog::handleMessage(const gloox::Message& msg, gloox::MessageSession*
 
 void ChatDialog::handleMUCMessage(gloox::MUCRoom* thisroom, const gloox::Message& msg, bool priv)
 {
-	emit reciveMessage(QString().fromUtf8(msg.body().c_str()), QString().fromUtf8((msg.from().resource().c_str())));
+	emit reciveMessage(QString().fromUtf8(msg.body().c_str()), QString().fromUtf8((msg.from().full().c_str())), QString().fromUtf8((msg.from().resource().c_str())));
 	//chatBox->append();
 }
 
@@ -80,7 +124,39 @@ void ChatDialog::onConnect()
 
 void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gloox::MUCRoomParticipant participant, const gloox::Presence& presence)
 {
-	
+	Participant part = participant;
+	part.colorGenerate();
+	part.nickresque = QString().fromUtf8(part.nick->resource().c_str());
+	part.roomjid = QString().fromUtf8(part.nick->full().c_str());
+	bool isChange = false;
+	if(presence.presence() == gloox::Presence::Unavailable)
+	{
+		for(std::vector<Participant>::iterator it = participants.begin(); it != participants.end(); it++)
+		{
+			if(it->roomjid == part.roomjid)
+			{
+				isChange = true;
+				participants.erase(it);
+				break;
+			}
+		}
+	}
+	else if(presence.presence() == gloox::Presence::Available)
+	{
+		//part.nick = new gloox::JID();
+		//memcpy(part->nick, participant.nick, sizeof(gloox::JID));
+		//qDebug() << part.nickresque;
+		
+		for(std::vector<Participant>::iterator it = participants.begin(); it != participants.end(); it++)
+		{
+			if(it->roomjid == part.roomjid)
+				return;
+		}
+		isChange = true;
+		participants.push_back(part);
+	}
+	if(isChange)
+		emit rebuildUserList();
 }
 
 void ChatDialog::sendMessage()
@@ -90,9 +166,22 @@ void ChatDialog::sendMessage()
 	inputLine->clear();
 }
 
-void ChatDialog::addToMessageBox(const QString& msg, const QString& from)
+void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString& nick)
 {
-	QString fin = QString().sprintf("[%s] <%s> %s", Helper::timeToString(time(NULL), "%d.%m.%y").toUtf8().data(), from.toUtf8().data(), msg.toUtf8().data());
+	QString color = "FF0000";
+	for(std::vector<Participant>::iterator it = participants.begin(); it != participants.end(); it++)
+	{
+		//qDebug() << it->color.c_str();
+		if(it->roomjid == from)
+		{
+			color = it->color;
+			break;
+		}
+	}
+	
+	msg.replace(QRegExp("((http|ftp|magnet):[^(\\s|\\n)]+)"),"<a href=\"\\1\">\\1</a>");
+	
+	QString fin = QString().sprintf("<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s", color.toUtf8().data(), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), msg.toUtf8().data());
 	chatBox->append(fin);
 }
 

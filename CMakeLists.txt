@@ -23,11 +23,15 @@ else (LOCAL_GLOOX)
   include_directories(${GLOOX_INCLUDE_DIR})
 endif (LOCAL_GLOOX)
 
+find_package (libtorrent REQUIRED)
+include_directories(${LIBTORRENT_INCLUDE_DIR})
 
 
-set(uenclient_SRCS 
+set(uenclient_SRCS  
 	      src/uenclient.cpp
 	      src/chatdialog.cpp
+	      src/chatuseritem.cpp
+	      src/createtorrentdialog.cpp
 	      src/helper.cpp
 	      src/main.cpp)
 
@@ -44,4 +48,5 @@ target_link_libraries(uenclient
 				${QT_QTGUI_LIBRARY}
 				${Boost_LIBRARIES}
 				${GLOOX_LIBRARIES}
+				${LIBTORRENT_LIBRARIES}
 		      )

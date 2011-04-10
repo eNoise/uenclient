@@ -12,6 +12,8 @@ public:
     virtual ~uenclient();
 private:
     QTabWidget *tabWidget;
+public slots:
+    void showTorrentCreateDialog();
 };
 
 #endif // uenclient_H
