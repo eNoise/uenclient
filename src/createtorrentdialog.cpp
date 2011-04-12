@@ -21,14 +21,18 @@
 
 #include <QVBoxLayout>
 
+#include "downloadtorrent.h"
+
 CreateTorrentDialog::CreateTorrentDialog()
 {
 	createButton = new QPushButton(tr("Create Torrent"));
-	torrentChooser = new QFileDialog(false);
 	QVBoxLayout* vert = new QVBoxLayout();
-	vert->addWidget(torrentChooser);
 	vert->addWidget(createButton);
 	setLayout(vert);
+	
+
+	DownloadTorrent x("http://forum.uruchie.org/attachment.php?attachmentid=58701");
+	x.download();
 }
 
 CreateTorrentDialog::~CreateTorrentDialog()

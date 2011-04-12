@@ -24,6 +24,7 @@
 #include <QListWidget>
 #include <QLineEdit>
 #include <QTextBrowser>
+#include <QHBoxLayout>
 
 #include <gloox/client.h>
 #include <gloox/connectionlistener.h>
@@ -36,7 +37,6 @@
 #include <pthread.h>
 #include <vector>
 
-#include <boost/concept_check.hpp>
 
 class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloox::MUCRoomHandler, 
 		   public gloox::MessageHandler
@@ -86,8 +86,10 @@ public:
 	   }
     };
 private:
+    QHBoxLayout* chat;
     QListWidget* inChatList;
     QLineEdit* inputLine;
+    int inputLineHeight;
     QTextBrowser* chatBox;
     
     gloox::Client* client;
@@ -114,8 +116,9 @@ private:
 
     //Participant currentParticipant;
     std::vector<Participant> participants;
+    std::vector<Participant>::iterator tabIterator;
 protected:
-  void keyPressEvent(QKeyEvent *event);
+  bool eventFilter(QObject* pObject, QEvent* pEvent);
 signals:
   void reciveMessage(QString msg, const QString& from, const QString& nick);
   void rebuildUserList();

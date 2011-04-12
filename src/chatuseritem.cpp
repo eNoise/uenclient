@@ -21,7 +21,6 @@
 #include <QPainter>
 #include <QDebug>
 #include <QApplication>
-#include <boost/concept_check.hpp>
 
 ChatUserItem::ChatUserItem()
 {

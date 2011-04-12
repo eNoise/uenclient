@@ -27,7 +27,6 @@
 #include "chatuseritem.h"
 
 #include <algorithm>
-#include <boost/foreach.hpp>
 
 ChatDialog::ChatDialog()
 {
@@ -38,7 +37,7 @@ ChatDialog::ChatDialog()
 	ChatUserItem* userListDelegate = new ChatUserItem();
 	inChatList->setItemDelegate(userListDelegate);
 	
-	QHBoxLayout* chat = new QHBoxLayout();
+	chat = new QHBoxLayout();
 	QVBoxLayout* main = new QVBoxLayout();
 	
 	inChatList->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -48,6 +47,9 @@ ChatDialog::ChatDialog()
 	main->addLayout(chat);
 	main->addWidget(inputLine);
 	setLayout(main);
+	
+	inputLineHeight = inputLine->height();
+	inputLine->installEventFilter(this);
 	
 	connect(inputLine, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
 	//connect(inputLine, SIGNAL(), this, SLOT(sendMessage()));
@@ -63,21 +65,39 @@ ChatDialog::ChatDialog()
 		return;
 }
 
-void ChatDialog::keyPressEvent(QKeyEvent *event)
+
+bool ChatDialog::eventFilter(QObject* pObject, QEvent* pEvent)
 {
-	switch(event->key())
+	if (pEvent->type() == QEvent::KeyPress)
 	{
-	  case Qt::Key_Space:
-	    qDebug() << "done!";
-	    break;
+		QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+		if(pKeyEvent->key() == Qt::Key_Space && (pKeyEvent->modifiers() & Qt::ShiftModifier))
+		{
+			//todo resize
+			inputLine->setText(inputLine->text() + "\n");
+		}
+		else if(pKeyEvent->key() == Qt::Key_Tab)
+		{	
+			if(tabIterator == participants.end())
+				tabIterator = participants.begin();
+			
+			inputLine->setText(tabIterator->nickresque + ": ");
+			
+			tabIterator++;
+		}
+	}
+	else
+	{
+		return QObject::eventFilter(pObject, pEvent);
 	}
 }
+
 
 void ChatDialog::updateUserList()
 {
 	inChatList->clear();
 	int i=1;
-	BOOST_FOREACH(Participant& part, participants)
+	foreach(Participant part, participants)
 	{
 		QListWidgetItem* item = new QListWidgetItem;
 		QVariant nick;
@@ -154,6 +174,7 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 		}
 		isChange = true;
 		participants.push_back(part);
+		tabIterator = participants.begin();
 	}
 	if(isChange)
 		emit rebuildUserList();
@@ -164,6 +185,7 @@ void ChatDialog::sendMessage()
 	gloox::Message m( gloox::Message::Groupchat, gloox::JID("main@conference.jabber.uruchie.org"), inputLine->text().toUtf8().data() );
 	client->send( m );
 	inputLine->clear();
+	tabIterator = participants.begin();
 }
 
 void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString& nick)
@@ -180,6 +202,7 @@ void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString
 	}
 	
 	msg.replace(QRegExp("((http|ftp|magnet):[^(\\s|\\n)]+)"),"<a href=\"\\1\">\\1</a>");
+	msg.replace("\n","<br />");
 	
 	QString fin = QString().sprintf("<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s", color.toUtf8().data(), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), msg.toUtf8().data());
 	chatBox->append(fin);

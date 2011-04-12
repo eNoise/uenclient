@@ -26,7 +26,7 @@
 
 class CreateTorrentDialog : public QDialog
 {
-
+Q_OBJECT
 public:
     CreateTorrentDialog();
     virtual ~CreateTorrentDialog();
