@@ -122,10 +122,12 @@ protected:
 signals:
   void reciveMessage(QString msg, const QString& from, const QString& nick);
   void rebuildUserList();
+  void changeUserState(bool online, QString nick);
 public slots:
   void sendMessage();
   void addToMessageBox(QString msg, const QString& from, const QString& nick);
   void updateUserList();
+  void printUserState(bool online, QString nick);
 };
 
 #endif // CHATDIALOG_H

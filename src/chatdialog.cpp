@@ -55,6 +55,7 @@ ChatDialog::ChatDialog()
 	//connect(inputLine, SIGNAL(), this, SLOT(sendMessage()));
 	connect(this, SIGNAL(reciveMessage(QString,QString,QString)), this, SLOT(addToMessageBox(QString,QString,QString)));
 	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
+	connect(this, SIGNAL(changeUserState(bool,QString)), SLOT(printUserState(bool,QString)));
 	client = new gloox::Client(gloox::JID("pichi@jabber.uruchie.org/UeNClient"), "iampichi");
 	//client->disco()->setVersion("UeN Client", "0.1.0");
 	client->registerConnectionListener( this );
@@ -114,6 +115,12 @@ void ChatDialog::updateUserList()
 	}
 }
 
+void ChatDialog::printUserState(bool online, QString nick)
+{
+	QString fin = QString().sprintf("<font color=\"green\">*** [%s] <b>%s</b> %s</font>", Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), ((online) ? "зашел" : "вышел"));
+	chatBox->append(fin);
+}
+
 void* ChatDialog::glooxconnect(void* context) 	
 {
 	((ChatDialog *)context)->client->connect();
@@ -157,6 +164,7 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 			{
 				isChange = true;
 				participants.erase(it);
+				emit changeUserState(false, part.nickresque);
 				break;
 			}
 		}
@@ -174,6 +182,7 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 		}
 		isChange = true;
 		participants.push_back(part);
+		emit changeUserState(true, part.nickresque);
 		tabIterator = participants.begin();
 	}
 	if(isChange)
