@@ -36,7 +36,8 @@
 
 #include <pthread.h>
 #include <vector>
-
+#include "uenclient.h"
+#include "privatechat.h"
 
 class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloox::MUCRoomHandler, 
 		   public gloox::MessageHandler
@@ -44,6 +45,7 @@ class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloo
 Q_OBJECT
 public:
     ChatDialog();
+    ChatDialog(uenclient* main);
     virtual ~ChatDialog();
     
     struct Participant : public gloox::MUCRoomParticipant
@@ -86,6 +88,8 @@ public:
 	   }
     };
 private:
+    void createWindow();
+    uenclient* mainWindow;
     QHBoxLayout* chat;
     QListWidget* inChatList;
     QLineEdit* inputLine;
@@ -115,6 +119,7 @@ private:
     void handleMUCItems (gloox::MUCRoom *thisroom, const gloox::Disco::ItemList &items){}
 
     //Participant currentParticipant;
+    QMap<QString, PrivateChat*> chats;
     std::vector<Participant> participants;
     std::vector<Participant>::iterator tabIterator;
 protected:
@@ -128,6 +133,8 @@ public slots:
   void addToMessageBox(QString msg, const QString& from, const QString& nick);
   void updateUserList();
   void printUserState(bool online, QString nick);
+  void beginPrivate(QListWidgetItem* item);
+  void beginPrivate(QString jid, QString nick);
 };
 
 #endif // CHATDIALOG_H

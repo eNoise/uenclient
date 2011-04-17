@@ -19,13 +19,25 @@ else (LOCAL_GLOOX)
 endif (LOCAL_GLOOX)
 
 
-set(uenclient_SRCS 
+set(uenclient_SRCS  
 	      src/downloadtorrent.cpp  
 	      src/uenclient.cpp
 	      src/chatdialog.cpp
 	      src/chatuseritem.cpp
+	      src/privatechat.cpp
 	      src/createtorrentdialog.cpp
 	      src/helper.cpp
+
+	      src/bencodeparser.cpp
+	      src/connectionmanager.cpp
+	      src/metainfo.cpp
+	      src/peerwireclient.cpp
+	      src/ratecontroller.cpp
+	      src/filemanager.cpp
+	      src/torrentclient.cpp
+	      src/torrentserver.cpp
+	      src/trackerclient.cpp
+
 	      src/main.cpp)
 
 

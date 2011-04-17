@@ -10,8 +10,8 @@ Q_OBJECT
 public:
     uenclient();
     virtual ~uenclient();
-private:
     QTabWidget *tabWidget;
+private:
 public slots:
     void showTorrentCreateDialog();
 };

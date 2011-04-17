@@ -66,7 +66,7 @@ void ChatUserItem::paint(QPainter* painter, const QStyleOptionViewItem& option, 
     painter->setFont(statusf);
     pen.setColor(QColor(qRgb(155,155,155)));
     painter->setPen(pen);
-    painter->drawText(QRect(54, rect.top()+17, rect.width(), 17), status);
+    painter->drawText(QRect(54, rect.top()+17, rect.width(), rect.height()-17), status);
     
     
     painter->restore();

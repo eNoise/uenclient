@@ -32,7 +32,8 @@ public:
     {
 		userNick = Qt::UserRole + 100, 
 		userStatus = Qt::UserRole + 101,
-		userColor = Qt::UserRole + 102
+		userColor = Qt::UserRole + 102,
+		userJID = Qt::UserRole + 103,
     };
     
     void paint(QPainter *painter, const QStyleOptionViewItem &option,

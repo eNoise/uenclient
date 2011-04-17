@@ -24,7 +24,7 @@ uenclient::uenclient()
     fileMenu->addAction( a );
         
     tabWidget = new QTabWidget;
-    tabWidget->addTab(new ChatDialog(), tr("Chat"));
+    tabWidget->addTab(new ChatDialog(this), tr("Chat"));
     setCentralWidget(tabWidget);
 }
 

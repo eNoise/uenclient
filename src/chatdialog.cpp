@@ -26,14 +26,27 @@
 #include "helper.h"
 #include "chatuseritem.h"
 
+
 #include <algorithm>
 
+ChatDialog::ChatDialog(uenclient* main): mainWindow(main)
+{
+	createWindow();
+}
+
 ChatDialog::ChatDialog()
+{
+	createWindow();
+}
+
+void ChatDialog::createWindow()
 {
 	inChatList = new QListWidget();
 	inputLine = new QLineEdit();
 	chatBox = new QTextBrowser();
 
+	chatBox->setStyleSheet("QTextBrowser { background: url('bak.jpg'); }");
+	
 	ChatUserItem* userListDelegate = new ChatUserItem();
 	inChatList->setItemDelegate(userListDelegate);
 	
@@ -52,6 +65,7 @@ ChatDialog::ChatDialog()
 	inputLine->installEventFilter(this);
 	
 	connect(inputLine, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
+	connect(inChatList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(beginPrivate(QListWidgetItem*)));
 	//connect(inputLine, SIGNAL(), this, SLOT(sendMessage()));
 	connect(this, SIGNAL(reciveMessage(QString,QString,QString)), this, SLOT(addToMessageBox(QString,QString,QString)));
 	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
@@ -65,7 +79,6 @@ ChatDialog::ChatDialog()
 	if(pthread_create(&glooxthread, NULL, &ChatDialog::glooxconnect, (void*)this) > 0)
 		return;
 }
-
 
 bool ChatDialog::eventFilter(QObject* pObject, QEvent* pEvent)
 {
@@ -107,9 +120,12 @@ void ChatDialog::updateUserList()
 		status.setValue(QString().fromUtf8(part.status.c_str()));
 		QVariant color;
 		color.setValue(part.color);
+		QVariant jid;
+		jid.setValue(QString().fromUtf8(part.jid->full().c_str()));
 		item->setData(ChatUserItem::userNick, nick);
 		item->setData(ChatUserItem::userStatus, status);
 		item->setData(ChatUserItem::userColor, color);
+		item->setData(ChatUserItem::userJID, jid);
 		inChatList->insertItem(i, item);
 		i++;
 	}
@@ -135,7 +151,7 @@ ChatDialog::~ChatDialog()
 
 void ChatDialog::handleMessage(const gloox::Message& msg, gloox::MessageSession* session)
 {
-
+	//emit beginPrivate(QString().fromUtf8((msg.from().full().c_str())), QString().fromUtf8((msg.from().full().c_str())));
 }
 
 void ChatDialog::handleMUCMessage(gloox::MUCRoom* thisroom, const gloox::Message& msg, bool priv)
@@ -211,11 +227,30 @@ void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString
 	}
 	
 	msg.replace(QRegExp("((http|ftp|magnet):[^(\\s|\\n)]+)"),"<a href=\"\\1\">\\1</a>");
+	msg.replace(QRegExp(":([a-z0-9_-]+):"),"<img src=\"smiles/kolobok/\\1.gif\" />");
 	msg.replace("\n","<br />");
+	
+	//qDebug() << msg;
 	
 	QString fin = QString().sprintf("<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s", color.toUtf8().data(), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), msg.toUtf8().data());
 	chatBox->append(fin);
 }
 
+
+void ChatDialog::beginPrivate(QListWidgetItem* item)
+{
+	beginPrivate(qvariant_cast<QString>(item->data(ChatUserItem::userJID)), qvariant_cast<QString>(item->data(ChatUserItem::userNick)));
+}
+
+void ChatDialog::beginPrivate(QString jid, QString nick)
+{
+	if(!chats.contains(jid))
+	{
+		PrivateChat* priv = new PrivateChat(client, gloox::JID(jid.toUtf8().data()));
+		mainWindow->tabWidget->addTab(priv, nick);
+		chats[jid] = priv;
+	}
+	mainWindow->tabWidget->setCurrentWidget(chats[jid]);
+}
 
 #include "chatdialog.moc"
