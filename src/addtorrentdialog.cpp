@@ -167,3 +167,5 @@ QString AddTorrentDialog::destinationFolder() const
 {
     return ui.destinationFolder->text();
 }
+
+#include "addtorrentdialog.moc"

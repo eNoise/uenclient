@@ -153,3 +153,5 @@ void RateController::transfer()
     if (canTransferMore || bytesToWrite == 0 || bytesToRead == 0)
         scheduleTransfer();
 }
+
+#include "ratecontroller.moc"

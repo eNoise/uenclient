@@ -72,4 +72,4 @@ void ChatUserItem::paint(QPainter* painter, const QStyleOptionViewItem& option, 
     painter->restore();
 }
 
-//#include "chatuseritem.moc"
+#include "chatuseritem.moc"

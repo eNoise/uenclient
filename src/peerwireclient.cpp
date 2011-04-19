@@ -662,3 +662,5 @@ qint64 PeerWireClient::writeData(const char *data, qint64 size)
     emit readyToTransfer();
     return size;
 }
+
+#include "peerwireclient.moc"

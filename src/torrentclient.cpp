@@ -1526,3 +1526,5 @@ void TorrentClient::updateProgress(int progress)
         emit progressUpdated(progress);
     }
 }
+
+#include "torrentclient.moc"

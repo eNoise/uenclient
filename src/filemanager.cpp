@@ -444,3 +444,5 @@ void FileManager::wakeUp()
     wokeUp = false;
     cond.wakeOne();
 }
+
+#include "filemanager.moc"

@@ -24,6 +24,7 @@
 
 class ChatUserItem : public QStyledItemDelegate
 {
+Q_OBJECT
 public:
     ChatUserItem();
     virtual ~ChatUserItem();

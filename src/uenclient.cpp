@@ -7,6 +7,7 @@
 
 #include "chatdialog.h"
 #include "createtorrentdialog.h"
+#include "torrentdialog.h"
 
 uenclient::uenclient()
 {
@@ -25,6 +26,7 @@ uenclient::uenclient()
         
     tabWidget = new QTabWidget;
     tabWidget->addTab(new ChatDialog(this), tr("Chat"));
+    tabWidget->addTab(new TorrentDialog(this), tr("Downloads"));
     setCentralWidget(tabWidget);
 }
 

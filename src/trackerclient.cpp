@@ -234,3 +234,5 @@ void TrackerClient::httpRequestDone(bool error)
         emit peerListUpdated(peers);
     }
 }
+
+#include "trackerclient.moc"

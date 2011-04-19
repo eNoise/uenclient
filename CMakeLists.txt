@@ -27,6 +27,8 @@ set(uenclient_SRCS
 	      src/privatechat.cpp
 	      src/createtorrentdialog.cpp
 	      src/helper.cpp
+	      src/torrentdialog.cpp
+	      src/addtorrentdialog.cpp
 
 	      src/bencodeparser.cpp
 	      src/connectionmanager.cpp
@@ -42,11 +44,12 @@ set(uenclient_SRCS
 
 
 qt4_automoc(${uenclient_SRCS})
+qt4_wrap_ui(UEN_U forms/addtorrentform.ui)
 
 include_directories(
 		    ${QT_INCLUDES} 
 		    ${CMAKE_CURRENT_BINARY_DIR})
-add_executable(uenclient ${uenclient_SRCS})
+add_executable(uenclient ${uenclient_SRCS} ${UEN_U})
 target_link_libraries(uenclient 
 				${QT_QTCORE_LIBRARY} 
 				${QT_QTGUI_LIBRARY}

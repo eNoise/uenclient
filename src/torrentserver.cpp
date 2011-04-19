@@ -101,3 +101,5 @@ void TorrentServer::processInfoHash(const QByteArray &infoHash)
     }
     removeClient();
 }
+
+#include "torrentserver.moc"
