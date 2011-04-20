@@ -161,11 +161,30 @@ TorrentDialog::TorrentDialog(QWidget *parent)
     bottomBar->addWidget((uploadLimitLabel = new QLabel(tr("0 KB/s"))));
     uploadLimitLabel->setFixedSize(QSize(fm.width(tr("99999 KB/s")), fm.lineSpacing()));
 
+    //fast create
+    fastView = new TorrentView(this);
+    fastView->setItemDelegate(new TorrentViewDelegate(this));
+    fastView->setHeaderLabels(headers);
+    fastView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    fastView->setAlternatingRowColors(true);
+    fastView->setRootIsDecorated(false);
+    QToolBar *bottomFastControl = new QToolBar(tr("Downloads control"));
+    ((QMainWindow*)parent)->addToolBarBreak(Qt::BottomToolBarArea);
+    ((QMainWindow*)parent)->addToolBar(Qt::BottomToolBarArea, bottomFastControl);
+    bottomFastControl->addWidget(fastView);
+    //bottomFastControl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
+    bottomFastControl->addSeparator();
+    
+    
     // Set up connections
     connect(torrentView, SIGNAL(itemSelectionChanged()),
             this, SLOT(setActionsEnabled()));
     connect(torrentView, SIGNAL(fileDropped(QString)),
             this, SLOT(acceptFileDrop(QString)));
+    //connect(fastView, SIGNAL(itemSelectionChanged()),
+    //        this, SLOT(setActionsEnabled()));
+    //connect(fastView, SIGNAL(fileDropped(QString)),
+    //        this, SLOT(acceptFileDrop(QString)));
     connect(uploadLimitSlider, SIGNAL(valueChanged(int)),
             this, SLOT(setUploadLimit(int)));
     connect(downloadLimitSlider, SIGNAL(valueChanged(int)),
@@ -288,6 +307,21 @@ void TorrentDialog::removeTorrent()
     connect(client, SIGNAL(stopped()), this, SLOT(torrentStopped()));
     client->stop();
 
+    //Удаляем из текущих закачек
+    bool isFind = false;
+    QTreeWidgetItem *item;
+    for(int i = 0; i < fastView->topLevelItemCount(); i++)
+    {
+	item = fastView->topLevelItem(i);
+	TorrentClient* cl = (TorrentClient*)(qvariant_cast<void*>(item->data(6, TorrentViewDelegate::torrentClient)));
+	if(cl == client)
+		isFind = true;
+    }
+    if(isFind)
+    {
+	 delete item;
+    }
+    
     // Remove the row from the view.
     delete torrentView->takeTopLevelItem(row);
     jobs.removeAt(row);
@@ -369,8 +403,9 @@ bool TorrentDialog::addTorrent(const QString &fileName, const QString &destinati
     jobs << job;
 
     // Create and add a row in the torrent view for this download.
-    QTreeWidgetItem *item = new QTreeWidgetItem(torrentView);
-
+    //QTreeWidgetItem *item = new QTreeWidgetItem(torrentView);
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    
     QString baseFileName = QFileInfo(fileName).fileName();
     if (baseFileName.toLower().endsWith(".torrent"))
         baseFileName.remove(baseFileName.size() - 8);
@@ -385,7 +420,15 @@ bool TorrentDialog::addTorrent(const QString &fileName, const QString &destinati
     item->setText(5, tr("Idle"));
     item->setFlags(item->flags() & ~Qt::ItemIsEditable);
     item->setTextAlignment(1, Qt::AlignHCenter);
-
+    QVariant c;
+    c.setValue<void*>(client); // потом обратно
+    item->setData(6, TorrentViewDelegate::torrentClient, c);
+    
+    QTreeWidgetItem *item2 = item->clone();
+    torrentView->addTopLevelItem(item);
+    if(client->state() == TorrentClient::Downloading) 
+	    fastView->addTopLevelItem(item2);
+    
     if (!saveChanges) {
         saveChanges = true;
         QTimer::singleShot(5000, this, SLOT(saveSettings()));
@@ -436,6 +479,31 @@ void TorrentDialog::updateState(TorrentClient::State)
 
         item->setText(5, client->stateString());
     }
+    
+    bool isFind = false;
+    QTreeWidgetItem *item2;
+    for(int i = 0; i < fastView->topLevelItemCount(); i++)
+    {
+	item2 = fastView->topLevelItem(i);
+	TorrentClient* cl = (TorrentClient*)(qvariant_cast<void*>(item2->data(6, TorrentViewDelegate::torrentClient)));
+	if(cl == client)
+		isFind = true;
+    }
+    if(!isFind && client->state() == TorrentClient::Downloading)
+    {
+	   item2 = item->clone();
+	   fastView->addTopLevelItem(item2);
+	   isFind = true;
+    }
+    if (isFind && item2) {
+        item2->setToolTip(0, tr("Torrent: %1<br>Destination: %2<br>State: %3")
+                         .arg(jobs.at(row).torrentFileName)
+                         .arg(jobs.at(row).destinationDirectory)
+                         .arg(client->stateString()));
+
+        item2->setText(5, client->stateString());
+    }
+    
     setActionsEnabled();
 }
 
@@ -448,6 +516,18 @@ void TorrentDialog::updatePeerInfo()
     QTreeWidgetItem *item = torrentView->topLevelItem(row);
     item->setText(1, tr("%1/%2").arg(client->connectedPeerCount())
                   .arg(client->seedCount()));
+    
+    bool isFind = false;
+    for(int i = 0; i < fastView->topLevelItemCount(); i++)
+    {
+	item = fastView->topLevelItem(i);
+	TorrentClient* cl = (TorrentClient*)(qvariant_cast<void*>(item->data(6, TorrentViewDelegate::torrentClient)));
+	if(cl == client)
+		isFind = true;
+    }
+    if(isFind)
+	item->setText(1, tr("%1/%2").arg(client->connectedPeerCount())
+                  .arg(client->seedCount()));
 }
 
 void TorrentDialog::updateProgress(int percent)
@@ -459,6 +539,17 @@ void TorrentDialog::updateProgress(int percent)
     QTreeWidgetItem *item = torrentView->topLevelItem(row);
     if (item)
         item->setText(2, QString::number(percent));
+    
+    bool isFind = false;
+    for(int i = 0; i < fastView->topLevelItemCount(); i++)
+    {
+	item = fastView->topLevelItem(i);
+	TorrentClient* cl = (TorrentClient*)(qvariant_cast<void*>(item->data(6, TorrentViewDelegate::torrentClient)));
+	if(cl == client)
+		isFind = true;
+    }
+    if(item && isFind)
+	item->setText(2, QString::number(percent));
 }
 
 void TorrentDialog::setActionsEnabled()
@@ -497,6 +588,18 @@ void TorrentDialog::updateDownloadRate(int bytesPerSecond)
     num.sprintf("%.1f KB/s", bytesPerSecond / 1024.0);
     torrentView->topLevelItem(row)->setText(3, num);
 
+    bool isFind = false;
+    QTreeWidgetItem *item;
+    for(int i = 0; i < fastView->topLevelItemCount(); i++)
+    {
+	item = fastView->topLevelItem(i);
+	TorrentClient* cl = (TorrentClient*)(qvariant_cast<void*>(item->data(6, TorrentViewDelegate::torrentClient)));
+	if(cl == client)
+		isFind = true;
+    }
+    if(isFind)
+	item->setText(3, num);
+    
     if (!saveChanges) {
         saveChanges = true;
         QTimer::singleShot(5000, this, SLOT(saveSettings()));
@@ -512,6 +615,19 @@ void TorrentDialog::updateUploadRate(int bytesPerSecond)
     num.sprintf("%.1f KB/s", bytesPerSecond / 1024.0);
     torrentView->topLevelItem(row)->setText(4, num);
 
+    bool isFind = false;
+    QTreeWidgetItem *item;
+    for(int i = 0; i < fastView->topLevelItemCount(); i++)
+    {
+	item = fastView->topLevelItem(i);
+	TorrentClient* cl = (TorrentClient*)(qvariant_cast<void*>(item->data(6, TorrentViewDelegate::torrentClient)));
+	if(cl == client)
+		isFind = true;
+    }
+    if(isFind)
+	item->setText(4, num);
+    
+    
     if (!saveChanges) {
         saveChanges = true;
         QTimer::singleShot(5000, this, SLOT(saveSettings()));
@@ -565,11 +681,11 @@ static int rateFromValue(int value)
     if (value >= 0 && value < 250) {
         rate = 1 + int(value * 0.124);
     } else if (value < 500) {
-        rate = 32 + int((value - 250) * 0.384);
+        rate = (32 + int((value - 250) * 0.384)) * 2;
     } else if (value < 750) {
-        rate = 128 + int((value - 500) * 1.536);
+        rate = (128 + int((value - 500) * 1.536)) * 4;
     } else {
-        rate = 512 + int((value - 750) * 6.1445);
+        rate = (512 + int((value - 750) * 6.1445)) * 5;
     }
     return rate;
 }
@@ -595,7 +711,7 @@ void TorrentDialog::about()
 
     QLabel *text = new QLabel;
     text->setWordWrap(true);
-    text->setText(QString().fromUtf8("Это программа для передачи файлов ака Uruchie Client =))"));
+    text->setText(QString().fromUtf8("Превью программы Uruchie Forum Client (UeNclient)"));
 
     QPushButton *quitButton = new QPushButton("OK");
 

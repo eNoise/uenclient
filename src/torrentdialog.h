@@ -80,6 +80,7 @@ private:
                     const QByteArray &resumeState = QByteArray());
     
     TorrentView *torrentView;
+    TorrentView *fastView;
     QAction *pauseTorrentAction;
     QAction *removeTorrentAction;
     QAction *upActionTool;
@@ -113,6 +114,11 @@ class TorrentViewDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
+    enum ItemRole
+    {
+	    torrentClient = Qt::UserRole + 200, 
+    };
+  
     inline TorrentViewDelegate(TorrentDialog* mainWindow) : QItemDelegate(mainWindow) {}
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const;
 };
