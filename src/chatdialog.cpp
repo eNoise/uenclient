@@ -253,4 +253,27 @@ void ChatDialog::beginPrivate(QString jid, QString nick)
 	mainWindow->tabWidget->setCurrentWidget(chats[jid]);
 }
 
+void ChatDialog::onTabClose(int index)
+{
+	PrivateChat* priv = (PrivateChat*)mainWindow->tabWidget->widget(index);
+	bool isFind = false;
+	
+	QMap<QString, PrivateChat*>::iterator it;
+	for(it = chats.begin(); it != chats.end(); it++)
+	{
+		if(*it == priv)
+		{
+			isFind = true;
+			break;
+		}
+	}
+	if(!isFind)
+		return;
+	
+	mainWindow->tabWidget->removeTab(index);
+	chats.erase(it);
+	delete priv;
+}
+
+
 #include "chatdialog.moc"

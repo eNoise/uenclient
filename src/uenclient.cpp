@@ -25,8 +25,11 @@ uenclient::uenclient()
     fileMenu->addAction( a );
         
     tabWidget = new QTabWidget;
-    tabWidget->addTab(new ChatDialog(this), tr("Chat"));
-    tabWidget->addTab(new TorrentDialog(this), tr("Downloads"));
+    ChatDialog* chat = new ChatDialog(this);
+    tabWidget->addTab(chat, tr("Chat"));
+    tabWidget->addTab(new TorrentDialog(this), tr("Transfers"));
+    tabWidget->setTabsClosable(true);
+    connect(tabWidget, SIGNAL(tabCloseRequested(int)), chat, SLOT(onTabClose(int)));
     setCentralWidget(tabWidget);
 }
 

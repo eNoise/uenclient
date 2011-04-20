@@ -135,6 +135,7 @@ public slots:
   void printUserState(bool online, QString nick);
   void beginPrivate(QListWidgetItem* item);
   void beginPrivate(QString jid, QString nick);
+  void onTabClose(int index);
 };
 
 #endif // CHATDIALOG_H
