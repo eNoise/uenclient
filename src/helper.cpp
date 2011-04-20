@@ -21,6 +21,7 @@
 
 #include <time.h>
 #include <sys/time.h>
+#include <QRegExp>
 
 QString Helper::timeToString(time_t t, QString format)
 {
@@ -31,4 +32,12 @@ QString Helper::timeToString(time_t t, QString format)
 	//delete ptm;
 	return result;
 }
+
+void Helper::chatTextModify(QString& text)
+{
+	text.replace(QRegExp("((http|ftp|magnet):[^(\\s|\\n)]+)"),"<a href=\"\\1\">\\1</a>");
+	text.replace(QRegExp(":([a-z0-9_-]+):"),"<img src=\"smiles/kolobok/\\1.gif\" />");
+	text.replace("\n","<br />");
+}
+
 

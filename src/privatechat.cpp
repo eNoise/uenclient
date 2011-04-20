@@ -52,6 +52,7 @@ void PrivateChat::handleMessage(const gloox::Message& msg, gloox::MessageSession
 void PrivateChat::addToMessageBox(QString msg, const QString& from)
 {
 	QString targ = QString().fromUtf8((target().full().c_str()));
+	Helper::chatTextModify(msg);
 	QString fin = QString().sprintf("<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s", ((targ != from) ? "ff0000" : "0000ff"), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), from.toUtf8().data(), msg.toUtf8().data());
 	chatBox->append(fin);
 }

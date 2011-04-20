@@ -45,7 +45,7 @@ void ChatDialog::createWindow()
 	inputLine = new QLineEdit();
 	chatBox = new QTextBrowser();
 
-	chatBox->setStyleSheet("QTextBrowser { background: url('bak.jpg'); }");
+	chatBox->setStyleSheet("QTextBrowser { background: url('bak2.JPG'); background-repeat: no-repeat; background-attachment: fixed; }");
 	
 	ChatUserItem* userListDelegate = new ChatUserItem();
 	inChatList->setItemDelegate(userListDelegate);
@@ -69,7 +69,7 @@ void ChatDialog::createWindow()
 	//connect(inputLine, SIGNAL(), this, SLOT(sendMessage()));
 	connect(this, SIGNAL(reciveMessage(QString,QString,QString)), this, SLOT(addToMessageBox(QString,QString,QString)));
 	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
-	connect(this, SIGNAL(changeUserState(bool,QString)), SLOT(printUserState(bool,QString)));
+	connect(this, SIGNAL(changeUserState(bool,QString,QString)), SLOT(printUserState(bool,QString,QString)));
 	client = new gloox::Client(gloox::JID("pichi@jabber.uruchie.org/UeNClient"), "iampichi");
 	//client->disco()->setVersion("UeN Client", "0.1.0");
 	client->registerConnectionListener( this );
@@ -131,9 +131,9 @@ void ChatDialog::updateUserList()
 	}
 }
 
-void ChatDialog::printUserState(bool online, QString nick)
+void ChatDialog::printUserState(bool online, QString jid, QString nick)
 {
-	QString fin = QString().sprintf("<font color=\"green\">*** [%s] <b>%s</b> %s</font>", Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), ((online) ? "зашел" : "вышел"));
+	QString fin = QString().sprintf("<font color=\"green\">*** [%s] <b>%s</b>(%s) %s</font>", Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), jid.toUtf8().data(), ((online) ? "зашел" : "вышел"));
 	chatBox->append(fin);
 }
 
@@ -180,7 +180,7 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 			{
 				isChange = true;
 				participants.erase(it);
-				emit changeUserState(false, part.nickresque);
+				emit changeUserState(false, QString().fromUtf8(part.jid->bare().c_str()), part.nickresque);
 				break;
 			}
 		}
@@ -198,7 +198,7 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 		}
 		isChange = true;
 		participants.push_back(part);
-		emit changeUserState(true, part.nickresque);
+		emit changeUserState(true, QString().fromUtf8(part.jid->bare().c_str()), part.nickresque);
 		tabIterator = participants.begin();
 	}
 	if(isChange)
@@ -226,10 +226,7 @@ void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString
 		}
 	}
 	
-	msg.replace(QRegExp("((http|ftp|magnet):[^(\\s|\\n)]+)"),"<a href=\"\\1\">\\1</a>");
-	msg.replace(QRegExp(":([a-z0-9_-]+):"),"<img src=\"smiles/kolobok/\\1.gif\" />");
-	msg.replace("\n","<br />");
-	
+	Helper::chatTextModify(msg);
 	//qDebug() << msg;
 	
 	QString fin = QString().sprintf("<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s", color.toUtf8().data(), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), msg.toUtf8().data());

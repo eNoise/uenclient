@@ -26,6 +26,7 @@ class Helper
 {
 public:
 	static QString timeToString(time_t, QString);
+	static void chatTextModify(QString&);
 };
 
 #endif // HELPER_H

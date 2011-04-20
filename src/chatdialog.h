@@ -127,12 +127,12 @@ protected:
 signals:
   void reciveMessage(QString msg, const QString& from, const QString& nick);
   void rebuildUserList();
-  void changeUserState(bool online, QString nick);
+  void changeUserState(bool online, QString jid, QString nick);
 public slots:
   void sendMessage();
   void addToMessageBox(QString msg, const QString& from, const QString& nick);
   void updateUserList();
-  void printUserState(bool online, QString nick);
+  void printUserState(bool online, QString jid, QString nick);
   void beginPrivate(QListWidgetItem* item);
   void beginPrivate(QString jid, QString nick);
   void onTabClose(int index);
