@@ -93,6 +93,7 @@ private:
     QHBoxLayout* chat;
     QListWidget* inChatList;
     QLineEdit* inputLine;
+    QLineEdit* subjectLine;
     int inputLineHeight;
     QTextBrowser* chatBox;
     
@@ -112,7 +113,7 @@ private:
     void handleMUCParticipantPresence (gloox::MUCRoom *thisroom, const gloox::MUCRoomParticipant  participant, const gloox::Presence &presence);
                             
     bool handleMUCRoomCreation  (gloox::MUCRoom  *thisroom){return true; }
-    void handleMUCSubject (gloox::MUCRoom *thisroom, const std::string &nick, const std::string &subject){}
+    void handleMUCSubject (gloox::MUCRoom *thisroom, const std::string &nick, const std::string &subject);
     void handleMUCInviteDecline (gloox::MUCRoom *thisroom, const gloox::JID &invitee, const std::string &reason){}
     void handleMUCError (gloox::MUCRoom *thisroom, gloox::StanzaError error){}
     void handleMUCInfo (gloox::MUCRoom *thisroom, int features, const std::string &name, const gloox::DataForm *infoForm){}
@@ -130,8 +131,11 @@ signals:
   void changeUserState(bool online, QString jid, QString nick);
   void startPrivate(QString jid, QString nick, QString defaultMsg = "");
   void startPrivate(gloox::MessageSession* session, QString defaultMsg = "");
+  void updateSubject(const QString& thread) const;
 public slots:
   void sendMessage();
+  void subjectUpdated(const QString& thread) const;
+  void setSubject() const;
   void addToMessageBox(QString msg, const QString& from, const QString& nick);
   void updateUserList();
   void printUserState(bool online, QString jid, QString nick);

@@ -23,6 +23,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QKeyEvent>
+#include <QPushButton>
+#include <QLabel>
 #include "helper.h"
 #include "chatuseritem.h"
 
@@ -44,6 +46,7 @@ void ChatDialog::createWindow()
 	inChatList = new QListWidget();
 	inputLine = new QLineEdit();
 	chatBox = new QTextBrowser();
+	subjectLine = new QLineEdit();
 
 	chatBox->setStyleSheet("QTextBrowser { background: url('bak2.JPG'); background-repeat: no-repeat; background-attachment: fixed; }");
 	
@@ -52,11 +55,19 @@ void ChatDialog::createWindow()
 	
 	chat = new QHBoxLayout();
 	QVBoxLayout* main = new QVBoxLayout();
+	QHBoxLayout* subjectLayout = new QHBoxLayout();
 	
 	inChatList->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 	
+	subjectLayout->addWidget(new QLabel(tr("Subject: ")));
+	subjectLayout->addWidget(subjectLine);
+	QPushButton* updateSubject = new QPushButton(tr("Update subject"));
+	subjectLayout->addWidget(updateSubject);
+	connect(updateSubject, SIGNAL(pressed()), SLOT(setSubject()));
+	
 	chat->addWidget(chatBox);
 	chat->addWidget(inChatList);
+	main->addLayout(subjectLayout);
 	main->addLayout(chat);
 	main->addWidget(inputLine);
 	setLayout(main);
@@ -64,6 +75,7 @@ void ChatDialog::createWindow()
 	inputLineHeight = inputLine->height();
 	inputLine->installEventFilter(this);
 	
+	connect(this, SIGNAL(updateSubject(QString)), SLOT(subjectUpdated(QString)));
 	connect(inputLine, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
 	connect(inChatList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(beginPrivate(QListWidgetItem*)));
 	//connect(inputLine, SIGNAL(), this, SLOT(sendMessage()));
@@ -107,6 +119,22 @@ bool ChatDialog::eventFilter(QObject* pObject, QEvent* pEvent)
 	}
 }
 
+
+void ChatDialog::handleMUCSubject(gloox::MUCRoom* thisroom, const std::string& nick, const std::string& subject)
+{
+	emit updateSubject(QString().fromUtf8(subject.c_str()));
+}
+
+void ChatDialog::setSubject() const
+{
+	QString curThread = subjectLine->text();
+	forumroom->setSubject(curThread.toUtf8().data());
+}
+
+void ChatDialog::subjectUpdated(const QString& thread) const
+{
+	subjectLine->setText(thread);
+}
 
 void ChatDialog::updateUserList()
 {
@@ -155,7 +183,7 @@ void ChatDialog::handleMessage(const gloox::Message& msg, gloox::MessageSession*
 	if(session)
 		emit startPrivate(session, QString().fromUtf8(msg.body().c_str()));
 	else if(QString().fromUtf8(msg.body().c_str()) != "")
-		emit startPrivate(QString().fromUtf8(msg.from().full().c_str()), QString().fromUtf8(msg.from().full().c_str()), QString().fromUtf8(msg.body().c_str()));
+		emit startPrivate(QString().fromUtf8(msg.from().full().c_str()), QString().fromUtf8(msg.from().username().c_str()), QString().fromUtf8(msg.body().c_str()));
 }
 
 void ChatDialog::handleMUCMessage(gloox::MUCRoom* thisroom, const gloox::Message& msg, bool priv)
