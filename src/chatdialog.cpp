@@ -70,6 +70,7 @@ void ChatDialog::createWindow()
 	connect(this, SIGNAL(reciveMessage(QString,QString,QString)), this, SLOT(addToMessageBox(QString,QString,QString)));
 	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
 	connect(this, SIGNAL(changeUserState(bool,QString,QString)), SLOT(printUserState(bool,QString,QString)));
+	connect(this, SIGNAL(startPrivate(QString,QString,QString)), SLOT(beginPrivate(QString,QString,QString)));
 	client = new gloox::Client(gloox::JID("pichi@jabber.uruchie.org/UeNClient"), "iampichi");
 	//client->disco()->setVersion("UeN Client", "0.1.0");
 	client->registerConnectionListener( this );
@@ -151,7 +152,10 @@ ChatDialog::~ChatDialog()
 
 void ChatDialog::handleMessage(const gloox::Message& msg, gloox::MessageSession* session)
 {
-	//emit beginPrivate(QString().fromUtf8((msg.from().full().c_str())), QString().fromUtf8((msg.from().full().c_str())));
+	if(session)
+		emit startPrivate(session, QString().fromUtf8(msg.body().c_str()));
+	else if(QString().fromUtf8(msg.body().c_str()) != "")
+		emit startPrivate(QString().fromUtf8(msg.from().full().c_str()), QString().fromUtf8(msg.from().full().c_str()), QString().fromUtf8(msg.body().c_str()));
 }
 
 void ChatDialog::handleMUCMessage(gloox::MUCRoom* thisroom, const gloox::Message& msg, bool priv)
@@ -226,10 +230,13 @@ void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString
 		}
 	}
 	
+	QString format = "<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s";
+	if(msg.startsWith("/me "))
+		format = "<font color=\"#%s\">[%s]* %s %s</font>";
 	Helper::chatTextModify(msg);
 	//qDebug() << msg;
 	
-	QString fin = QString().sprintf("<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s", color.toUtf8().data(), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), msg.toUtf8().data());
+	QString fin = QString().sprintf(format.toUtf8().data(), color.toUtf8().data(), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), msg.toUtf8().data());
 	chatBox->append(fin);
 }
 
@@ -239,15 +246,36 @@ void ChatDialog::beginPrivate(QListWidgetItem* item)
 	beginPrivate(qvariant_cast<QString>(item->data(ChatUserItem::userJID)), qvariant_cast<QString>(item->data(ChatUserItem::userNick)));
 }
 
-void ChatDialog::beginPrivate(QString jid, QString nick)
+void ChatDialog::beginPrivate(QString jid, QString nick, QString defaultMsg)
 {
 	if(!chats.contains(jid))
 	{
-		PrivateChat* priv = new PrivateChat(client, gloox::JID(jid.toUtf8().data()));
+		PrivateChat* priv;
+		if(defaultMsg != "")
+			priv = new PrivateChat(client, gloox::JID(jid.toUtf8().data()), defaultMsg);
+		else
+			priv = new PrivateChat(client, gloox::JID(jid.toUtf8().data()));
 		mainWindow->tabWidget->addTab(priv, nick);
 		chats[jid] = priv;
 	}
 	mainWindow->tabWidget->setCurrentWidget(chats[jid]);
+}
+
+void ChatDialog::beginPrivate(gloox::MessageSession* session, QString defaultMsg)
+{	
+	if(!session)
+		return;
+	QString jid = QString().fromUtf8(session->target().full().c_str());
+	if(!chats.contains(jid))
+	{
+		PrivateChat* priv;
+		if(defaultMsg != "")
+			priv = new PrivateChat(session, defaultMsg);
+		else
+			priv = new PrivateChat(session);
+		mainWindow->tabWidget->addTab(priv, jid);
+		chats[jid] = priv;
+	}
 }
 
 void ChatDialog::onTabClose(int index)

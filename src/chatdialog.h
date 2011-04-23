@@ -128,13 +128,16 @@ signals:
   void reciveMessage(QString msg, const QString& from, const QString& nick);
   void rebuildUserList();
   void changeUserState(bool online, QString jid, QString nick);
+  void startPrivate(QString jid, QString nick, QString defaultMsg = "");
+  void startPrivate(gloox::MessageSession* session, QString defaultMsg = "");
 public slots:
   void sendMessage();
   void addToMessageBox(QString msg, const QString& from, const QString& nick);
   void updateUserList();
   void printUserState(bool online, QString jid, QString nick);
   void beginPrivate(QListWidgetItem* item);
-  void beginPrivate(QString jid, QString nick);
+  void beginPrivate(QString jid, QString nick, QString defaultMsg = "");
+  void beginPrivate(gloox::MessageSession* session, QString defaultMsg = "");
   void onTabClose(int index);
 };
 

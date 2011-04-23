@@ -33,9 +33,12 @@ class PrivateChat : public QWidget, public gloox::MessageHandler, public gloox::
 {
 Q_OBJECT
 public:
-    PrivateChat(gloox::Client* c, gloox::JID jid);
+    PrivateChat(gloox::Client* c, gloox::JID jid, QString startMsg = "");
+    PrivateChat(gloox::MessageSession* session);
+    PrivateChat(gloox::MessageSession* session, QString startMsg);
     virtual ~PrivateChat();
 private:
+    void createChatBox();
     QLineEdit* inputLine;
     QTextBrowser* chatBox;
     void handleMessage( const gloox::Message& msg, gloox::MessageSession* session);

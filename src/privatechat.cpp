@@ -22,7 +22,26 @@
 #include <gloox/message.h>
 #include "helper.h"
 
-PrivateChat::PrivateChat(gloox::Client* c, gloox::JID jid) : gloox::MessageSession(c, jid)
+PrivateChat::PrivateChat(gloox::Client* c, gloox::JID jid, QString startMsg) : gloox::MessageSession(c, jid)
+{
+	createChatBox();
+	if(startMsg != "")
+		emit addToMessageBox(startMsg, QString().fromUtf8(target().full().c_str()));
+}
+
+PrivateChat::PrivateChat(gloox::MessageSession* session): gloox::MessageSession(*session)
+{
+	createChatBox();
+}
+
+PrivateChat::PrivateChat(gloox::MessageSession* session, QString startMsg): gloox::MessageSession(*session)
+{
+	createChatBox();
+	emit addToMessageBox(startMsg, QString().fromUtf8(target().full().c_str()));
+}
+
+
+void PrivateChat::createChatBox()
 {
 	QVBoxLayout* main = new QVBoxLayout;
 	inputLine = new QLineEdit;
@@ -52,8 +71,11 @@ void PrivateChat::handleMessage(const gloox::Message& msg, gloox::MessageSession
 void PrivateChat::addToMessageBox(QString msg, const QString& from)
 {
 	QString targ = QString().fromUtf8((target().full().c_str()));
+	QString format = "<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s";
+	if(msg.startsWith("/me "))
+		format = "<font color=\"#%s\">[%s]* %s %s</font>";
 	Helper::chatTextModify(msg);
-	QString fin = QString().sprintf("<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s", ((targ != from) ? "ff0000" : "0000ff"), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), from.toUtf8().data(), msg.toUtf8().data());
+	QString fin = QString().sprintf(format.toUtf8().data(), ((targ != from) ? "ff0000" : "0000ff"), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), from.toUtf8().data(), msg.toUtf8().data());
 	chatBox->append(fin);
 }
 
