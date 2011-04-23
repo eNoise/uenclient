@@ -34,11 +34,23 @@
 #include <gloox/message.h>
 #include <gloox/presence.h>
 #include <gloox/loghandler.h>
+#include <gloox/vcard.h>
+#include <gloox/vcardmanager.h>
+#include <gloox/vcardhandler.h>
+
 
 #include <pthread.h>
 #include <vector>
 #include "uenclient.h"
 #include "privatechat.h"
+#include <boost/concept_check.hpp>
+
+class VCardHandler : public gloox::VCardHandler
+{
+	    void handleVCard( const gloox::JID& jid, const gloox::VCard* vcard );
+	    void handleVCardResult( VCardContext context, const gloox::JID& jid,
+                                      gloox::StanzaError se = gloox::StanzaErrorUndefined  ){};
+};
 
 class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloox::MUCRoomHandler, 
 		   public gloox::MessageHandler, public gloox::LogHandler
@@ -65,6 +77,9 @@ public:
 		QString color;
 		QString nickresque;
 		QString roomjid;
+		
+		QString avatarhash;
+		gloox::VCard vcard;
 	   
 	   Participant(const gloox::MUCRoomParticipant& pr) :
 		actor(pr.actor),
@@ -100,6 +115,7 @@ private:
     
     gloox::Client* client;
     gloox::MUCRoom* forumroom;
+    gloox::VCardManager* vcardManager;
     pthread_t glooxthread;
     static void *glooxconnect(void *context);
     // stubs

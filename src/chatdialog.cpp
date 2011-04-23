@@ -27,6 +27,7 @@
 #include <QLabel>
 #include "helper.h"
 #include "chatuseritem.h"
+#include "gloox/vcardupdate.h"
 
 
 #include <algorithm>
@@ -87,6 +88,8 @@ void ChatDialog::createWindow()
 	//client->disco()->setVersion("UeN Client", "0.1.0");
 	client->registerConnectionListener( this );
 	client->registerMessageHandler( this );
+	client->registerStanzaExtension(new gloox::VCardUpdate());
+	vcardManager = new gloox::VCardManager(client);
 	client->logInstance().registerLogHandler(gloox::LogLevelDebug, gloox::LogAreaAll, this);
 	forumroom = new gloox::MUCRoom(client, gloox::JID("main@conference.jabber.uruchie.org/pichi"), this, NULL);
 	
@@ -122,7 +125,7 @@ bool ChatDialog::eventFilter(QObject* pObject, QEvent* pEvent)
 
 void ChatDialog::handleLog (gloox::LogLevel level, gloox::LogArea area, const std::string &message)
 {
-	qDebug() << message.c_str();
+	//qDebug() << message.c_str();
 }
 
 void ChatDialog::handleMUCSubject(gloox::MUCRoom* thisroom, const std::string& nick, const std::string& subject)
@@ -233,6 +236,12 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 			if(it->roomjid == part.roomjid)
 				return;
 		}
+		
+		gloox::VCardUpdate avatarHash(presence.tag()->findChild("x", gloox::XMLNS, gloox::XMLNS_X_VCARD_UPDATE));
+		part.avatarhash = avatarHash.hash().c_str();
+		if(part.avatarhash.length() > 0)
+			vcardManager->fetchVCard(*part.nick, new VCardHandler());
+		
 		isChange = true;
 		participants.push_back(part);
 		emit changeUserState(true, QString().fromUtf8(part.jid->bare().c_str()), part.nickresque);
@@ -240,6 +249,11 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 	}
 	if(isChange)
 		emit rebuildUserList();
+}
+
+void VCardHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* vcard)
+{
+	qDebug() << vcard->photo().binval.c_str();
 }
 
 void ChatDialog::sendMessage()
