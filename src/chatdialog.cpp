@@ -87,6 +87,7 @@ void ChatDialog::createWindow()
 	//client->disco()->setVersion("UeN Client", "0.1.0");
 	client->registerConnectionListener( this );
 	client->registerMessageHandler( this );
+	client->logInstance().registerLogHandler(gloox::LogLevelDebug, gloox::LogAreaAll, this);
 	forumroom = new gloox::MUCRoom(client, gloox::JID("main@conference.jabber.uruchie.org/pichi"), this, NULL);
 	
 	if(pthread_create(&glooxthread, NULL, &ChatDialog::glooxconnect, (void*)this) > 0)
@@ -119,6 +120,10 @@ bool ChatDialog::eventFilter(QObject* pObject, QEvent* pEvent)
 	}
 }
 
+void ChatDialog::handleLog (gloox::LogLevel level, gloox::LogArea area, const std::string &message)
+{
+	qDebug() << message.c_str();
+}
 
 void ChatDialog::handleMUCSubject(gloox::MUCRoom* thisroom, const std::string& nick, const std::string& subject)
 {

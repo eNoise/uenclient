@@ -33,6 +33,7 @@
 #include <gloox/mucroomhandler.h>
 #include <gloox/message.h>
 #include <gloox/presence.h>
+#include <gloox/loghandler.h>
 
 #include <pthread.h>
 #include <vector>
@@ -40,7 +41,7 @@
 #include "privatechat.h"
 
 class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloox::MUCRoomHandler, 
-		   public gloox::MessageHandler
+		   public gloox::MessageHandler, public gloox::LogHandler
 {
 Q_OBJECT
 public:
@@ -106,9 +107,11 @@ private:
     void onDisconnect  (gloox::ConnectionError e){}
     bool onTLSConnect  (const gloox::CertInfo  &info){return true;}
 
-    void handleMessage( const gloox::Message& msg, gloox::MessageSession* session);
-    void handleMUCMessage (gloox::MUCRoom *thisroom, const gloox::Message &msg, bool priv );
+    void handleLog (gloox::LogLevel level, gloox::LogArea area, const std::string &message);
 
+    void handleMessage( const gloox::Message& msg, gloox::MessageSession* session);
+    void handleMUCMessage (gloox::MUCRoom *thisroom, const gloox::Message &msg, bool priv );  
+    
     // room enter
     void handleMUCParticipantPresence (gloox::MUCRoom *thisroom, const gloox::MUCRoomParticipant  participant, const gloox::Presence &presence);
                             
