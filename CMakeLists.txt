@@ -47,13 +47,28 @@ set(uenclient_SRCS
 qt4_automoc(${uenclient_SRCS})
 qt4_wrap_ui(UEN_U forms/addtorrentform.ui)
 
+set(UEN_LIBS
+		${QT_QTCORE_LIBRARY} 
+		${QT_QTGUI_LIBRARY}
+		${QT_QTNETWORK_LIBRARY}
+		${GLOOX_LIBRARIES}
+		pthread 
+)
+
+#gloox fix
+if(WIN32)
+        set(UEN_LIBS ${UEN_LIBS} 
+                      dnsapi
+                      secur32
+                      ws2_32
+        )
+endif(WIN32)
+
+
 include_directories(
 		    ${QT_INCLUDES} 
-		    ${CMAKE_CURRENT_BINARY_DIR})
+		    ${CMAKE_CURRENT_BINARY_DIR}
+)
 add_executable(uenclient ${uenclient_SRCS} ${UEN_U})
-target_link_libraries(uenclient 
-				${QT_QTCORE_LIBRARY} 
-				${QT_QTGUI_LIBRARY}
-				${QT_QTNETWORK_LIBRARY}
-				${GLOOX_LIBRARIES}
-		      )
+target_link_libraries(uenclient ${UEN_LIBS})
+

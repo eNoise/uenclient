@@ -21,6 +21,7 @@
 #include <QVBoxLayout>
 #include <gloox/message.h>
 #include "helper.h"
+#include <time.h>
 
 PrivateChat::PrivateChat(gloox::Client* c, gloox::JID jid, QString startMsg) : gloox::MessageSession(c, jid)
 {
