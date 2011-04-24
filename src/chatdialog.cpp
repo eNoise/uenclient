@@ -25,6 +25,8 @@
 #include <QKeyEvent>
 #include <QPushButton>
 #include <QLabel>
+#include <QFile>
+#include <QCryptographicHash>
 #include "helper.h"
 #include "chatuseritem.h"
 #include "gloox/vcardupdate.h"
@@ -159,10 +161,13 @@ void ChatDialog::updateUserList()
 		color.setValue(part.color);
 		QVariant jid;
 		jid.setValue(QString().fromUtf8(part.jid->full().c_str()));
+		QVariant avatar;
+		avatar.setValue(part.avatar);
 		item->setData(ChatUserItem::userNick, nick);
 		item->setData(ChatUserItem::userStatus, status);
 		item->setData(ChatUserItem::userColor, color);
 		item->setData(ChatUserItem::userJID, jid);
+		item->setData(ChatUserItem::userAvatar, avatar);
 		inChatList->insertItem(i, item);
 		i++;
 	}
@@ -240,7 +245,15 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 		gloox::VCardUpdate avatarHash(presence.tag()->findChild("x", gloox::XMLNS, gloox::XMLNS_X_VCARD_UPDATE));
 		part.avatarhash = avatarHash.hash().c_str();
 		if(part.avatarhash.length() > 0)
-			vcardManager->fetchVCard(*part.nick, new VCardHandler());
+		{
+			QFile avatar("avatars/" + part.avatarhash);
+			avatar.open(QIODevice::ReadOnly);
+			if(avatar.size() > 0)
+				part.avatar = avatar.readAll();
+			else
+				vcardManager->fetchVCard(*part.nick, this);
+			avatar.close();
+		}
 		
 		isChange = true;
 		participants.push_back(part);
@@ -251,9 +264,22 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 		emit rebuildUserList();
 }
 
-void VCardHandler::handleVCard(const gloox::JID& jid, const gloox::VCard* vcard)
+void ChatDialog::handleVCard(const gloox::JID& jid, const gloox::VCard* vcard)
 {
-	qDebug() << vcard->photo().binval.c_str();
+	for(std::vector<Participant>::iterator it = participants.begin(); it != participants.end(); it++)
+	{
+		if(it->roomjid == QString().fromUtf8(jid.full().c_str()))
+		{
+			it->avatar = QByteArray().fromRawData(vcard->photo().binval.data(),vcard->photo().binval.size());
+			it->avatarhash = QCryptographicHash::hash(it->avatar, QCryptographicHash::Sha1).toHex();
+			QFile avatar("avatars/" + it->avatarhash);
+			avatar.open(QIODevice::WriteOnly);
+			avatar.write(it->avatar);
+			avatar.close();
+			emit rebuildUserList();
+			break;
+		}
+	}
 }
 
 void ChatDialog::sendMessage()

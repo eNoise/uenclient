@@ -43,24 +43,17 @@
 #include <vector>
 #include "uenclient.h"
 #include "privatechat.h"
-#include <boost/concept_check.hpp>
 
-class VCardHandler : public gloox::VCardHandler
-{
-	    void handleVCard( const gloox::JID& jid, const gloox::VCard* vcard );
-	    void handleVCardResult( VCardContext context, const gloox::JID& jid,
-                                      gloox::StanzaError se = gloox::StanzaErrorUndefined  ){};
-};
 
 class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloox::MUCRoomHandler, 
-		   public gloox::MessageHandler, public gloox::LogHandler
+		   public gloox::MessageHandler, public gloox::LogHandler, public gloox::VCardHandler
 {
 Q_OBJECT
 public:
     ChatDialog();
     ChatDialog(uenclient* main);
     virtual ~ChatDialog();
-    
+        
     struct Participant : public gloox::MUCRoomParticipant
     {
 		gloox::JID* nick;
@@ -79,7 +72,7 @@ public:
 		QString roomjid;
 		
 		QString avatarhash;
-		gloox::VCard vcard;
+		QByteArray avatar;
 	   
 	   Participant(const gloox::MUCRoomParticipant& pr) :
 		actor(pr.actor),
@@ -103,6 +96,7 @@ public:
 		  //color[6] = '\0';     
 	   }
     };
+    std::vector<Participant> getParticipants() const { return participants; };
 private:
     void createWindow();
     uenclient* mainWindow;
@@ -125,6 +119,10 @@ private:
 
     void handleLog (gloox::LogLevel level, gloox::LogArea area, const std::string &message);
 
+    void handleVCard( const gloox::JID& jid, const gloox::VCard* vcard );
+    void handleVCardResult( VCardContext context, const gloox::JID& jid,
+                            gloox::StanzaError se = gloox::StanzaErrorUndefined  ){};
+    
     void handleMessage( const gloox::Message& msg, gloox::MessageSession* session);
     void handleMUCMessage (gloox::MUCRoom *thisroom, const gloox::Message &msg, bool priv );  
     

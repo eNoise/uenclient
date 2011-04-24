@@ -21,6 +21,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QApplication>
+#include <QPixmap>
 
 ChatUserItem::ChatUserItem()
 {
@@ -46,6 +47,7 @@ void ChatUserItem::paint(QPainter* painter, const QStyleOptionViewItem& option, 
     QString nick = qvariant_cast<QString>(index.data(userNick));
     QString status = qvariant_cast<QString>(index.data(userStatus));
     QString color = qvariant_cast<QString>(index.data(userColor));
+    QByteArray avatarData = qvariant_cast<QByteArray>(index.data(userAvatar));
     QFont nickf = QApplication::font();
     nickf.setBold(true);
     QFont statusf = QApplication::font();
@@ -55,7 +57,11 @@ void ChatUserItem::paint(QPainter* painter, const QStyleOptionViewItem& option, 
     
     QPen pen;
     
-    QIcon avatar("best.png");
+    QIcon avatar;
+    if(avatarData.size() > 0)
+	avatar.addPixmap(QPixmap().fromImage(QImage().fromData(avatarData)));
+    else
+	avatar.addFile("best.png");
     //qDebug() << avatar.actualSize(option.decorationSize);
     painter->drawPixmap(QPoint(2,rect.top()),avatar.pixmap(50,50));
     
