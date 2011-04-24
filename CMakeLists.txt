@@ -19,8 +19,9 @@ else (LOCAL_GLOOX)
 endif (LOCAL_GLOOX)
 
 
-set(uenclient_SRCS  
+set(uenclient_SRCS   
 	      src/downloadtorrent.cpp  
+	      src/loginform.cpp
 	      src/uenclient.cpp
 	      src/chatdialog.cpp
 	      src/chatuseritem.cpp

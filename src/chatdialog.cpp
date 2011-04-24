@@ -34,17 +34,17 @@
 
 #include <algorithm>
 
-ChatDialog::ChatDialog(uenclient* main): mainWindow(main)
+ChatDialog::ChatDialog(uenclient* main, QString login, QString password, QString nick): mainWindow(main)
 {
-	createWindow();
+	createWindow(login, password, nick);
 }
 
-ChatDialog::ChatDialog()
+ChatDialog::ChatDialog(QString login, QString password, QString nick)
 {
-	createWindow();
+	createWindow(login, password, nick);
 }
 
-void ChatDialog::createWindow()
+void ChatDialog::createWindow(QString login, QString password, QString nick)
 {
 	inChatList = new QListWidget();
 	inputLine = new QLineEdit();
@@ -86,14 +86,14 @@ void ChatDialog::createWindow()
 	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
 	connect(this, SIGNAL(changeUserState(bool,QString,QString)), SLOT(printUserState(bool,QString,QString)));
 	connect(this, SIGNAL(startPrivate(QString,QString,QString)), SLOT(beginPrivate(QString,QString,QString)));
-	client = new gloox::Client(gloox::JID("pichi@jabber.uruchie.org/UeNClient"), "iampichi");
+	client = new gloox::Client(gloox::JID((login + "/UeNClient").toUtf8().data()), password.toUtf8().data());
 	//client->disco()->setVersion("UeN Client", "0.1.0");
 	client->registerConnectionListener( this );
 	client->registerMessageHandler( this );
 	client->registerStanzaExtension(new gloox::VCardUpdate());
 	vcardManager = new gloox::VCardManager(client);
 	client->logInstance().registerLogHandler(gloox::LogLevelDebug, gloox::LogAreaAll, this);
-	forumroom = new gloox::MUCRoom(client, gloox::JID("main@conference.jabber.uruchie.org/pichi"), this, NULL);
+	forumroom = new gloox::MUCRoom(client, gloox::JID(("main@conference.jabber.uruchie.org/" + nick).toUtf8().data()), this, NULL);
 	
 	if(pthread_create(&glooxthread, NULL, &ChatDialog::glooxconnect, (void*)this) > 0)
 		return;

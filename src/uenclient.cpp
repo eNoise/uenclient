@@ -8,6 +8,7 @@
 #include "chatdialog.h"
 #include "createtorrentdialog.h"
 #include "torrentdialog.h"
+#include "loginform.h"
 
 uenclient::uenclient()
 {
@@ -23,9 +24,15 @@ uenclient::uenclient()
     
     fileMenu->addAction( b );
     fileMenu->addAction( a );
-        
+    
+    LoginForm* login = new LoginForm(this);
+    login->exec();
+}
+
+void uenclient::startSession()
+{
     tabWidget = new QTabWidget;
-    ChatDialog* chat = new ChatDialog(this);
+    ChatDialog* chat = new ChatDialog(this, jabberJID, jabberPassword, jabberNick);
     tabWidget->addTab(chat, tr("Chat"));
     tabWidget->addTab(new TorrentDialog(this), tr("Transfers"));
     tabWidget->setTabsClosable(true);

@@ -50,8 +50,8 @@ class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloo
 {
 Q_OBJECT
 public:
-    ChatDialog();
-    ChatDialog(uenclient* main);
+    ChatDialog(QString login, QString password, QString nick);
+    ChatDialog(uenclient* main, QString login, QString password, QString nick);
     virtual ~ChatDialog();
         
     struct Participant : public gloox::MUCRoomParticipant
@@ -98,7 +98,7 @@ public:
     };
     std::vector<Participant> getParticipants() const { return participants; };
 private:
-    void createWindow();
+    void createWindow(QString login, QString password, QString nick);
     uenclient* mainWindow;
     QHBoxLayout* chat;
     QListWidget* inChatList;
