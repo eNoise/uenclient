@@ -20,6 +20,7 @@
 #include "chatdialog.h"
 #include "glooxsession.h"
 
+#include <time.h>
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
