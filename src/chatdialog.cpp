@@ -18,6 +18,7 @@
 
 
 #include "chatdialog.h"
+#include "glooxsession.h"
 
 #include <QDebug>
 #include <QHBoxLayout>
@@ -94,9 +95,8 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
 	vcardManager = new gloox::VCardManager(client);
 	client->logInstance().registerLogHandler(gloox::LogLevelDebug, gloox::LogAreaAll, this);
 	forumroom = new gloox::MUCRoom(client, gloox::JID(("main@conference.jabber.uruchie.org/" + nick).toUtf8().data()), this, NULL);
-	
-	if(pthread_create(&glooxthread, NULL, &ChatDialog::glooxconnect, (void*)this) > 0)
-		return;
+	GlooxSession* gloox = new GlooxSession(client);
+	gloox->start();
 }
 
 bool ChatDialog::eventFilter(QObject* pObject, QEvent* pEvent)
@@ -177,13 +177,6 @@ void ChatDialog::printUserState(bool online, QString jid, QString nick)
 {
 	QString fin = QString().sprintf("<font color=\"green\">*** [%s] <b>%s</b>(%s) %s</font>", Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), nick.toUtf8().data(), jid.toUtf8().data(), ((online) ? "зашел" : "вышел"));
 	chatBox->append(fin);
-}
-
-void* ChatDialog::glooxconnect(void* context) 	
-{
-	((ChatDialog *)context)->client->connect();
-	pthread_exit(context);
-	return context;
 }
 
 ChatDialog::~ChatDialog()

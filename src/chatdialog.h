@@ -39,7 +39,6 @@
 #include <gloox/vcardhandler.h>
 
 
-#include <pthread.h>
 #include <vector>
 #include "uenclient.h"
 #include "privatechat.h"
@@ -110,8 +109,6 @@ private:
     gloox::Client* client;
     gloox::MUCRoom* forumroom;
     gloox::VCardManager* vcardManager;
-    pthread_t glooxthread;
-    static void *glooxconnect(void *context);
     // stubs
     void onConnect();
     void onDisconnect  (gloox::ConnectionError e){}

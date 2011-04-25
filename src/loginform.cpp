@@ -57,7 +57,6 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	connect(startLogin, SIGNAL(pressed()), this, SLOT(doLogin()));
 }
 
-
 LoginForm::~LoginForm()
 {
 
@@ -68,6 +67,8 @@ void LoginForm::doLogin()
 	QString l = login->text();
 	QString p = password->text();
 	QString n = nick->text();
+	if(l.size() == 0 || p.size() == 0 || n.size() == 0)
+		return; // Пустые поля
 	((uenclient*)parent())->setJabberJID(l + "@jabber.uruchie.org");
 	((uenclient*)parent())->setJabberPassword(p);
 	((uenclient*)parent())->setJabberNick(n);

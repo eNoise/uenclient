@@ -19,10 +19,11 @@ else (LOCAL_GLOOX)
 endif (LOCAL_GLOOX)
 
 
-set(uenclient_SRCS   
+set(uenclient_SRCS    
 	      src/downloadtorrent.cpp  
 	      src/loginform.cpp
 	      src/uenclient.cpp
+	      src/glooxsession.cpp
 	      src/chatdialog.cpp
 	      src/chatuseritem.cpp
 	      src/privatechat.cpp
@@ -52,7 +53,6 @@ set(UEN_LIBS
 		${QT_QTGUI_LIBRARY}
 		${QT_QTNETWORK_LIBRARY}
 		${GLOOX_LIBRARIES}
-		pthread 
 )
 
 #gloox fix
