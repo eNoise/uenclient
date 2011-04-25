@@ -45,6 +45,6 @@ QFile* DownloadTorrent::download()
 	http.get("/index.php");
 	bt = http.readAll();
 	http.close();
-	qDebug() << bt;
+	//qDebug() << bt;
 }
 
