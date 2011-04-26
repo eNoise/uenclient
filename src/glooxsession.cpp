@@ -19,8 +19,15 @@
 
 #include "glooxsession.h"
 
+#ifndef NDEBUG
+#include <QDebug>
+#endif
+
 void GlooxSession::run()
 {
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Gloox thread started"; 
+#endif
 	client->connect();
 }
 

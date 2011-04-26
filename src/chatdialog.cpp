@@ -90,6 +90,9 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
 	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
 	connect(this, SIGNAL(changeUserState(bool,QString,QString)), SLOT(printUserState(bool,QString,QString)));
 	connect(this, SIGNAL(startPrivate(QString,QString,QString)), SLOT(beginPrivate(QString,QString,QString)));
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Start gloox session"; 
+#endif
 	client = new gloox::Client(gloox::JID((login + "/UeNClient").toUtf8().data()), password.toUtf8().data());
 	//client->disco()->setVersion("UeN Client", "0.1.0");
 	client->registerConnectionListener( this );
@@ -98,6 +101,9 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
 	vcardManager = new gloox::VCardManager(client);
 	client->logInstance().registerLogHandler(gloox::LogLevelDebug, gloox::LogAreaAll, this);
 	forumroom = new gloox::MUCRoom(client, gloox::JID(("main@conference.jabber.uruchie.org/" + nick).toUtf8().data()), this, NULL);
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Gloox configure finished"; 
+#endif
 	GlooxSession* gloox = new GlooxSession(client);
 	gloox->start();
 }
@@ -205,9 +211,15 @@ void ChatDialog::handleMUCMessage(gloox::MUCRoom* thisroom, const gloox::Message
 
 void ChatDialog::onConnect()
 {
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Gloox connected"; 
+#endif
 	mainWindow->isJabberOn = true;
 	mainWindow->updateServicesStatus();
 	forumroom->join();
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Room joined"; 
+#endif
 }
 
 void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gloox::MUCRoomParticipant participant, const gloox::Presence& presence)

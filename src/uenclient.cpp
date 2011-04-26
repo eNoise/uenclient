@@ -34,6 +34,10 @@ uenclient::uenclient()
     isSearchOn = false;
     isTorrentOn = false;
     updateServicesStatus();
+
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Init main window finished"; 
+#endif
     
     LoginForm* login = new LoginForm(this);
     login->exec();
@@ -41,6 +45,9 @@ uenclient::uenclient()
 
 void uenclient::startSession()
 {
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Start client session"; 
+#endif
     tabWidget = new QTabWidget;
     ChatDialog* chat = new ChatDialog(this, jabberJID, jabberPassword, jabberNick);
     tabWidget->addTab(chat, tr("Chat"));

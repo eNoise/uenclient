@@ -4,7 +4,7 @@ rm -fr win32build
 mkdir win32build
 cd win32build
 mkdir uenclient
-mingw32-cmake -DCMAKE_BUILD_TYPE=Release -DLOCAL_GLOOX=ON -DCMAKE_INSTALL_PREFIX=`pwd`/uenclient ../
+mingw32-cmake -DCMAKE_BUILD_TYPE=Debug -DLOCAL_GLOOX=ON -DCMAKE_INSTALL_PREFIX=`pwd`/uenclient ../
 mingw32-make -j4
 mingw32-make install
 cd uenclient

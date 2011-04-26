@@ -25,6 +25,10 @@
 #include <QLabel>
 #include <QSettings>
 
+#ifndef NDEBUG
+#include <QDebug>
+#endif
+
 LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 {
 	login = new QLineEdit;
@@ -60,6 +64,10 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	login->setText(settings.value("LastSessionLogin").toString());
 	password->setText(settings.value("LastSessionPassword").toString());
 	nick->setText(settings.value("LastSessionNick").toString());
+	
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Init login form finished"; 
+#endif
 }
 
 LoginForm::~LoginForm()
