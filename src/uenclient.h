@@ -3,6 +3,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QTableWidget>
+#include <QLabel>
 
 class uenclient : public QMainWindow
 {
@@ -24,14 +25,21 @@ public:
     QString getJabberNick(){ return jabberNick; };
     QString getApiLogin(){ return apiLogin; };
     QString getApiPassword(){ return apiPassword; };
+    
+    bool isJabberOn;
+    bool isTorrentOn;
+    bool isSearchOn;
 private:
     QString jabberJID;
     QString jabberPassword;
     QString jabberNick;
     QString apiLogin;
     QString apiPassword; // md5sum
+    
+    QLabel* displayStatus;
 public slots:
     void showTorrentCreateDialog();
+    void updateServicesStatus();
 };
 
 #endif // uenclient_H

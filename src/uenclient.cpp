@@ -4,6 +4,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QAction>
+#include <QToolBar>
 
 #include "chatdialog.h"
 #include "createtorrentdialog.h"
@@ -25,6 +26,15 @@ uenclient::uenclient()
     fileMenu->addAction( b );
     fileMenu->addAction( a );
     
+    QToolBar *bottomBar = new QToolBar(tr("Services status"));
+    addToolBar(Qt::BottomToolBarArea, bottomBar);
+    displayStatus = new QLabel();
+    bottomBar->addWidget(displayStatus);
+    isJabberOn = false;
+    isSearchOn = false;
+    isTorrentOn = false;
+    updateServicesStatus();
+    
     LoginForm* login = new LoginForm(this);
     login->exec();
 }
@@ -38,6 +48,17 @@ void uenclient::startSession()
     tabWidget->setTabsClosable(true);
     connect(tabWidget, SIGNAL(tabCloseRequested(int)), chat, SLOT(onTabClose(int)));
     setCentralWidget(tabWidget);
+}
+
+void uenclient::updateServicesStatus()
+{
+	QString yes = tr("enabled");
+	QString no = tr("disabled");
+	displayStatus->setText(
+				tr("Jabber client: ") + ((isJabberOn) ? yes : no) + "   "
+				+ tr("BitTorrent client: ") + ((isTorrentOn) ? yes : no) + "   "
+				+ tr("Search client: ") + ((isSearchOn) ? yes : no) + "      "
+			      );
 }
 
 uenclient::~uenclient()

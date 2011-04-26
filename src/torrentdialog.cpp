@@ -42,6 +42,8 @@
 #include "addtorrentdialog.h"
 #include "ratecontroller.h"
 
+#include "uenclient.h"
+
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -204,6 +206,9 @@ TorrentDialog::TorrentDialog(QWidget *parent)
     setWindowTitle(tr("Torrent Client"));
     setActionsEnabled();
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
+    
+    ((uenclient*)parent)->isTorrentOn = true;
+    ((uenclient*)parent)->updateServicesStatus();
 }
 
 QSize TorrentDialog::sizeHint() const
@@ -243,7 +248,7 @@ int TorrentDialog::rowOfClient(TorrentClient *client) const
 void TorrentDialog::loadSettings()
 {
     // Load base settings (last working directory, upload/download limits).
-    QSettings settings("Trolltech", "Torrent");
+    QSettings settings("eNoise", "UeNclient");
     lastDirectory = settings.value("LastDirectory").toString();
     if (lastDirectory.isEmpty())
         lastDirectory = QDir::currentPath();
@@ -444,14 +449,15 @@ void TorrentDialog::saveSettings()
     saveChanges = false;
 
     // Prepare and reset the settings
-    QSettings settings("Trolltech", "Torrent");
-    settings.clear();
+    QSettings settings("eNoise", "UeNclient");
+    //settings.clear();
 
     settings.setValue("LastDirectory", lastDirectory);
     settings.setValue("UploadLimit", uploadLimitSlider->value());
     settings.setValue("DownloadLimit", downloadLimitSlider->value());
 
     // Store data on all known torrents
+    settings.remove("Torrents"); // recreate sessions
     settings.beginWriteArray("Torrents");
     for (int i = 0; i < jobs.size(); ++i) {
         settings.setArrayIndex(i);

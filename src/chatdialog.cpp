@@ -201,6 +201,8 @@ void ChatDialog::handleMUCMessage(gloox::MUCRoom* thisroom, const gloox::Message
 
 void ChatDialog::onConnect()
 {
+	mainWindow->isJabberOn = true;
+	mainWindow->updateServicesStatus();
 	forumroom->join();
 }
 

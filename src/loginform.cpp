@@ -23,7 +23,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
-
+#include <QSettings>
 
 LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 {
@@ -55,6 +55,11 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	setWindowTitle(tr("Enter your forum login"));
 	connect(this, SIGNAL(rejected()), parent, SLOT(close()));
 	connect(startLogin, SIGNAL(pressed()), this, SLOT(doLogin()));
+	
+	QSettings settings("eNoise", "UeNclient");
+	login->setText(settings.value("LastSessionLogin").toString());
+	password->setText(settings.value("LastSessionPassword").toString());
+	nick->setText(settings.value("LastSessionNick").toString());
 }
 
 LoginForm::~LoginForm()
@@ -72,6 +77,13 @@ void LoginForm::doLogin()
 	((uenclient*)parent())->setJabberJID(l + "@jabber.uruchie.org");
 	((uenclient*)parent())->setJabberPassword(p);
 	((uenclient*)parent())->setJabberNick(n);
+	
+	QSettings settings("eNoise", "UeNclient");
+	settings.setValue("LastSessionLogin", l);
+	settings.setValue("LastSessionPassword", p);
+	settings.setValue("LastSessionNick", n);
+	settings.sync();
+	
 	((uenclient*)parent())->startSession();
 	close();
 }
