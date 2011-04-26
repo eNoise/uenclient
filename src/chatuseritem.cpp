@@ -19,7 +19,9 @@
 
 #include "chatuseritem.h"
 #include <QPainter>
+#ifndef NDEBUG
 #include <QDebug>
+#endif
 #include <QApplication>
 #include <QPixmap>
 

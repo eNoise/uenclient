@@ -21,7 +21,9 @@
 #include "glooxsession.h"
 
 #include <time.h>
+#ifndef NDEBUG
 #include <QDebug>
+#endif
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QKeyEvent>
@@ -128,7 +130,9 @@ bool ChatDialog::eventFilter(QObject* pObject, QEvent* pEvent)
 
 void ChatDialog::handleLog (gloox::LogLevel level, gloox::LogArea area, const std::string &message)
 {
-	//qDebug() << message.c_str();
+#ifndef NDEBUG
+	qDebug() << "[GLOOX] " << message.c_str();
+#endif
 }
 
 void ChatDialog::handleMUCSubject(gloox::MUCRoom* thisroom, const std::string& nick, const std::string& subject)
@@ -247,7 +251,11 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 			if(avatar.size() > 0)
 				part.avatar = avatar.readAll();
 			else
+			{
 				vcardManager->fetchVCard(*part.nick, this);
+				//XEP-0084 Here
+			}
+			
 			avatar.close();
 		}
 		
@@ -262,18 +270,22 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 
 void ChatDialog::handleVCard(const gloox::JID& jid, const gloox::VCard* vcard)
 {
-	for(std::vector<Participant>::iterator it = participants.begin(); it != participants.end(); it++)
+	// saves avatar
+	if(vcard->photo().binval.size() > 0)
 	{
-		if(it->roomjid == QString().fromUtf8(jid.full().c_str()))
+		for(std::vector<Participant>::iterator it = participants.begin(); it != participants.end(); it++)
 		{
-			it->avatar = QByteArray().fromRawData(vcard->photo().binval.data(),vcard->photo().binval.size());
-			it->avatarhash = QCryptographicHash::hash(it->avatar, QCryptographicHash::Sha1).toHex();
-			QFile avatar("avatars/" + it->avatarhash);
-			avatar.open(QIODevice::WriteOnly);
-			avatar.write(it->avatar);
-			avatar.close();
-			emit rebuildUserList();
-			break;
+			if(it->roomjid == QString().fromUtf8(jid.full().c_str()))
+			{
+				it->avatar = QByteArray().fromRawData(vcard->photo().binval.data(),vcard->photo().binval.size());
+				it->avatarhash = QCryptographicHash::hash(it->avatar, QCryptographicHash::Sha1).toHex();
+				QFile avatar("avatars/" + it->avatarhash);
+				avatar.open(QIODevice::WriteOnly);
+				avatar.write(it->avatar);
+				avatar.close();
+				emit rebuildUserList();
+				break;
+			}
 		}
 	}
 }

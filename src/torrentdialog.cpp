@@ -713,19 +713,29 @@ void TorrentDialog::setDownloadLimit(int value)
 void TorrentDialog::about()
 {
     QLabel *icon = new QLabel;
-    icon->setPixmap(QPixmap("anime_girl.png"));
+    icon->setPixmap(QPixmap("uenlogo_350.png"));
 
     QLabel *text = new QLabel;
     text->setWordWrap(true);
-    text->setText(QString().fromUtf8("Превью программы Uruchie Forum Client (UeNclient)"));
+    text->setText(
+		tr("UeNClient Version: prealpha\n\n") 
+		+ tr("Developers:\n")
+		+ tr(" Alexey DEg Kasyanchuk - main developer (first alpha and later)\n")
+		+ tr(" Sergey Happ Svirsky - maintainer and developer (first alpha and later)\n")
+		+ tr(" Egor Nagg Bogatov - maintainer and support (first alpha and later)\n")
+		+ tr(" Un1c0rn - Ideological leader and support (first alpha and later)\n")
+		+ tr(" Leto - Designer (first alpha and later)\n")
+		+ tr(" Rabbid - Tester (first alpha and later)\n")
+    );
 
     QPushButton *quitButton = new QPushButton("OK");
 
     QHBoxLayout *topLayout = new QHBoxLayout;
-    topLayout->setMargin(10);
-    topLayout->setSpacing(10);
+    topLayout->setMargin(15);
+    topLayout->setSpacing(15);
     topLayout->addWidget(icon);
     topLayout->addWidget(text);
+    topLayout->setAlignment(text,Qt::AlignTop);
 
     QHBoxLayout *bottomLayout = new QHBoxLayout;
     bottomLayout->addStretch();
@@ -738,7 +748,7 @@ void TorrentDialog::about()
 
     QDialog about(this);
     about.setModal(true);
-    about.setWindowTitle(tr("About uenClient"));
+    about.setWindowTitle(tr("About UeNClient"));
     about.setLayout(mainLayout);
 
     connect(quitButton, SIGNAL(clicked()), &about, SLOT(close()));

@@ -19,7 +19,9 @@
 
 #include "downloadtorrent.h"
 
+#ifndef NDEBUG
 #include <QDebug>
+#endif
 
 DownloadTorrent::DownloadTorrent()
 {
