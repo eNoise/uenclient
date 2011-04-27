@@ -98,4 +98,4 @@ namespace gloox
 
 }
 
-#endif// SOFTWAREVERSION_H__
+#endif // SOFTWAREVERSION_H__

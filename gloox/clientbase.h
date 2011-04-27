@@ -24,10 +24,9 @@
 #include "mutex.h"
 #include "taghandler.h"
 #include "statisticshandler.h"
-#include "tlshandler.h"
-#include "compressiondatahandler.h"
 #include "connectiondatahandler.h"
 #include "parser.h"
+#include "tlshandler.h"
 
 #include <string>
 #include <list>
@@ -58,9 +57,9 @@ namespace gloox
   class SubscriptionHandler;
   class MUCInvitationHandler;
   class TagHandler;
-  class TLSBase;
   class ConnectionBase;
-  class CompressionBase;
+  class ConnectionTLS;
+  class ConnectionCompression;
   class StanzaExtensionFactory;
 
   /**
@@ -73,8 +72,7 @@ namespace gloox
    * @since 0.3
    */
   class GLOOX_API ClientBase : public TagHandler, public ConnectionDataHandler,
-                               public CompressionDataHandler, public TLSHandler,
-                               public IqHandler
+                               public IqHandler, public TLSHandler
   {
 
     friend class RosterManager;
@@ -280,7 +278,7 @@ namespace gloox
        * A convenience function that sends the given Presence stanza.
        * @param pres The Presence stanza to send.
        */
-      void send( Presence& pres );
+      void send( const Presence& pres );
 
       /**
        * Returns whether authentication has taken place and was successful.
@@ -323,38 +321,6 @@ namespace gloox
        * @since 0.9
        */
       void setConnectionImpl( ConnectionBase* cb );
-
-      /**
-       * This function returns the concrete encryption implementation currently in use.
-       * @return The concrete encryption implementation.
-       * @since 0.9
-       */
-      TLSBase* encryptionImpl() const { return m_encryption; }
-
-      /**
-       * Use this function if you have a class supporting hardware encryption (or whatever).
-       * This should be called before calling connect(). If there already is a
-       * encryption implementation set (either manually or automatically), it gets deleted.
-       * @param tb The encryption implementation to use.
-       * @since 0.9
-       */
-      void setEncryptionImpl( TLSBase* tb );
-
-      /**
-       * This function returns the concrete compression implementation currently in use.
-       * @return The concrete compression implementation.
-       * @since 0.9
-       */
-      CompressionBase* compressionImpl() const { return m_compression; }
-
-      /**
-       * Use this function if you have a class supporting some fancy compression algorithm.
-       * This should be called before calling connect(). If there already is a
-       * compression implementation set (either manually or automatically), it gets deleted.
-       * @param cb The compression implementation to use.
-       * @since 0.9
-       */
-      void setCompressionImpl( CompressionBase* cb );
 
       /**
        * Sends a whitespace ping to the server.
@@ -681,12 +647,6 @@ namespace gloox
       // reimplemented from ParserHandler
       virtual void handleTag( Tag* tag );
 
-      // reimplemented from CompressionDataHandler
-      virtual void handleCompressedData( const std::string& data );
-
-      // reimplemented from CompressionDataHandler
-      virtual void handleDecompressedData( const std::string& data );
-
       // reimplemented from ConnectionDataHandler
       virtual void handleReceivedData( const ConnectionBase* connection, const std::string& data );
 
@@ -697,10 +657,10 @@ namespace gloox
       virtual void handleDisconnect( const ConnectionBase* connection, ConnectionError reason );
 
       // reimplemented from TLSHandler
-      virtual void handleEncryptedData( const TLSBase* base, const std::string& data );
+      virtual void handleEncryptedData( const TLSBase* /*base*/, const std::string& /*data*/ ) {}
 
       // reimplemented from TLSHandler
-      virtual void handleDecryptedData( const TLSBase* base, const std::string& data );
+      virtual void handleDecryptedData( const TLSBase* /*base*/, const std::string& /*data*/ ) {}
 
       // reimplemented from TLSHandler
       virtual void handleHandshakeResult( const TLSBase* base, bool success, CertInfo &certinfo );
@@ -818,20 +778,25 @@ namespace gloox
        * @return @b True if TLS is supported, @b false otherwise.
        */
       bool hasTls();
+      bool hasCompression();
 
       JID m_jid;                         /**< The 'self' JID. */
       JID m_authzid;                     /**< An optional authorization ID. See setAuthzid(). */
       std::string m_authcid;             /**< An alternative authentication ID. See setAuthcid(). */
       ConnectionBase* m_connection;      /**< The transport connection. */
-      TLSBase* m_encryption;             /**< Used for connection encryption. */
-      CompressionBase* m_compression;    /**< Used for connection compression. */
+      ConnectionTLS* m_encryption;       /**< Used for connection encryption. */
+      ConnectionCompression* m_compression; /**< Used for connection compression. */
       Disco* m_disco;                    /**< The local Service Discovery client. */
 
       /** A list of permanent presence extensions. */
       StanzaExtensionList m_presenceExtensions;
+      LogSink m_logInstance;
+      StringList m_cacerts;
 
-      std::string m_selectedResource;    /**< The currently selected resource.
-                                          * See Client::selectResource() and Client::binRessource(). */
+      GLOOX_DEPRECATED std::string m_selectedResource; /**< The currently selected resource.
+                                          * See Client::selectResource() and Client::bindRessource().
+                                          * @deprecated Not used anymore. Will be removed for 1.1.
+                                          * @todo Remove for 1.1 */
       std::string m_clientCerts;         /**< TLS client certificates. */
       std::string m_clientKey;           /**< TLS client private key. */
       std::string m_namespace;           /**< Default namespace. */
@@ -844,8 +809,7 @@ namespace gloox
                                           * is currently activated. */
       bool m_encryptionActive;           /**< Indicates whether or not stream encryption
                                           * is currently activated. */
-      bool m_compress;                   /**< Whether stream compression
-                                          * is desired at all. */
+      bool m_compress;                   /**< Whether stream compression is desired at all. */
       bool m_authed;                     /**< Whether authentication has been completed successfully. */
       bool m_block;                      /**< Whether blocking connection is wanted. */
       bool m_sasl;                       /**< Whether SASL authentication is wanted. */
@@ -924,8 +888,6 @@ namespace gloox
       void parse( const std::string& data );
       void init();
       void handleStreamError( Tag* tag );
-      TLSBase* getDefaultEncryption();
-      CompressionBase* getDefaultCompression();
 
       void notifyIqHandlers( IQ& iq );
       void notifyMessageHandlers( Message& msg );
@@ -990,7 +952,6 @@ namespace gloox
       PresenceJidHandlerList   m_presenceJidHandlers;
       SubscriptionHandlerList  m_subscriptionHandlers;
       TagHandlerList           m_tagHandlers;
-      StringList               m_cacerts;
       StatisticsHandler      * m_statisticsHandler;
       MUCInvitationHandler   * m_mucInvitationHandler;
       MessageSessionHandler  * m_messageSessionHandlerChat;
@@ -999,9 +960,11 @@ namespace gloox
       MessageSessionHandler  * m_messageSessionHandlerNormal;
 
       util::Mutex m_iqHandlerMapMutex;
+      util::Mutex m_iqExtHandlerMapMutex; // TODO Enable this mutex again. However
+                                          // it must be possible to register new IQ handlers
+                                          // while an IQ is being handled!
 
       Parser m_parser;
-      LogSink m_logInstance;
       StanzaExtensionFactory* m_seFactory;
       EventDispatcher m_dispatcher;
 
@@ -1010,6 +973,8 @@ namespace gloox
       StringMap m_streamErrorText;
       std::string m_streamErrorCData;
       Tag* m_streamErrorAppCondition;
+
+      ConnectionBase* m_transportConnection;
 
       StatisticsStruct m_stats;
 

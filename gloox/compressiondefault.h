@@ -25,7 +25,7 @@ namespace gloox
    * @brief This is an abstraction of the various Compression implementations.
    *
    * @author Jakob Schroeter <js@camaya.net>
-   * @since 1.0
+   * @since 1.1
    */
   class GLOOX_API CompressionDefault : public CompressionBase
   {

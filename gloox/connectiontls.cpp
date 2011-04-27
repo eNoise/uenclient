@@ -65,11 +65,10 @@ namespace gloox
     if( !m_tls )
       return ConnTlsNotAvailable;
 
+    m_tls->setSubject( m_subject );
+
     if( !m_tls->init( m_clientKey, m_clientCerts, m_cacerts ) )
       return ConnTlsFailed;
-
-//     m_tls->setCACerts( m_cacerts );
-//     m_tls->setClientCert( m_clientKey, m_clientCerts );
 
     m_state = StateConnecting;
 

@@ -313,6 +313,7 @@
  * supports it)
  * @li XEP-0145 @link gloox::Annotations Annotations @endlink
  * @li XEP-0153 @link gloox::VCardUpdate vCard-based Avatars @endlink
+ * @li XEP-0168 @link gloox::RAP Resource Application Priority @endlink
  * @li XEP-0172 @link gloox::Nickname User Nickname @endlink
  * @li XEP-0184 @link gloox::Receipt Message Receipts @endlink
  * @li XEP-0199 @link gloox::ClientBase::xmppPing() XMPP Ping @endlink
@@ -566,8 +567,11 @@ namespace gloox
   /** Jingle namespace (XEP-0166) */
   GLOOX_API extern const std::string XMLNS_JINGLE;
 
+  /** Jingle error namespace (XEP-0166) */
+  GLOOX_API extern const std::string XMLNS_JINGLE_ERROR;
+
   /** Jingle Audio via RTP namespace (XEP-0167) */
-  GLOOX_API extern const std::string XMLNS_JINGLE_AUDIO_RTP;
+  GLOOX_API extern const std::string XMLNS_JINGLE_RTP;
 
   /** Jingle ICE-UDP Transport namespace (XEP-0176) */
   GLOOX_API extern const std::string XMLNS_JINGLE_ICE_UDP;
@@ -575,14 +579,29 @@ namespace gloox
   /** Jingle Raw UDP Transport namespace (XEP-0177) */
   GLOOX_API extern const std::string XMLNS_JINGLE_RAW_UDP;
 
-  /** Jingle Video via RTP namespace (XEP-0180) */
-  GLOOX_API extern const std::string XMLNS_JINGLE_VIDEO_RTP;
+  /** Jingle DTMF namespace (XEP-0181) */
+  GLOOX_API extern const std::string XMLNS_JINGLE_DTMF;
+
+  /** Jingle File Transfer namespace (XEP-0234) */
+  GLOOX_API extern const std::string XMLNS_JINGLE_FILE_TRANSFER;
+
+  /** Jingle XML Streams namespace (XEP-0247) */
+  GLOOX_API extern const std::string XMLNS_JINGLE_XML_STREAMS;
 
   /** Stanza Headers and Internet Metadata (SHIM) namespace (XEP-0131) */
   GLOOX_API extern const std::string XMLNS_SHIM;
 
   /** Attention namespace (XEP-0224) */
   GLOOX_API extern const std::string XMLNS_ATTENTION;
+
+  /** Resource Application Priority namespace (XEP-0168) */
+  GLOOX_API extern const std::string XMLNS_RAP;
+
+  /** Bits of Binary namespace (XEP-0231) */
+  GLOOX_API extern const std::string XMLNS_BOB;
+
+  /** Bits of Binary namespace (XEP-0231) */
+  GLOOX_API extern const std::string XMLNS_X_CONFERENCE;
 
 
   /** Supported stream version (major). */
@@ -655,6 +674,7 @@ namespace gloox
     ConnParseError,                 /**< An XML parse error occurred. */
     ConnConnectionRefused,          /**< The connection was refused by the server (on the socket level).
                                      * @since 0.9 */
+    ConnSocketError,                /**< Creation of the socket failed. */
     ConnDnsError,                   /**< Resolving the server's hostname failed.
                                      * @since 0.9 */
     ConnOutOfMemory,                /**< Out of memory. Uhoh. */
@@ -667,6 +687,8 @@ namespace gloox
                                      * @since 0.9.4 */
     ConnCompressionFailed,          /**< Negotiating/initializing compression failed.
                                      * @since 0.9 */
+    ConnCompressionNotAvailable,    /**< TLS was required but is not compiled in.
+                                     * @since 1.1 */
     ConnAuthenticationFailed,       /**< Authentication failed. Username/password wrong or account does
                                      * not exist. Use ClientBase::authError() to find the reason. */
     ConnUserDisconnected,           /**< The user (or higher-level protocol) requested a disconnect. */
@@ -800,7 +822,7 @@ namespace gloox
     StreamErrorXmlNotWellFormed,    /**< The initiating entity has sent XML that is not well-formed as
                                      * defined by [XML]. */
     StreamErrorUndefined            /**< An undefined/unknown error occured. Also used if a diconnect was
-     * user-initiated. Also set before and during a established connection
+                                     * user-initiated. Also set before and during a established connection
                                      * (where obviously no error occured). */
   };
 
@@ -1221,6 +1243,7 @@ namespace gloox
    * A list of StanzaExtensions.
    */
   typedef std::list<const StanzaExtension*> StanzaExtensionList;
+
 }
 
 extern "C"

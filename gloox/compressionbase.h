@@ -67,7 +67,7 @@ namespace gloox
 
       /**
        * Performs internal cleanup.
-       * @since 1.0
+       * @since 1.1
        */
       virtual void cleanup() = 0;
 
