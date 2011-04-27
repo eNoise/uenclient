@@ -14,9 +14,9 @@
 #include "tag.h"
 #include "util.h"
 
+#include <stdlib.h>
+
 #include <algorithm>
-#include <cstdio>
-#include <cstdlib>
 
 namespace gloox
 {

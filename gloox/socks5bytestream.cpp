@@ -148,7 +148,8 @@ namespace gloox
 
   void SOCKS5Bytestream::handleDisconnect( const ConnectionBase* /*connection*/, ConnectionError /*reason*/ )
   {
-    close();
+    if( m_handler && m_connected )
+      m_handler->handleBytestreamClose( this );
   }
 
 }

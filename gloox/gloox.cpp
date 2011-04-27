@@ -99,24 +99,18 @@ namespace gloox
   const std::string XMLNS_RECEIPTS          = "urn:xmpp:receipts";
   const std::string XMLNS_NICKNAME          = "http://jabber.org/protocol/nick";
 
-  const std::string XMLNS_JINGLE            = "urn:xmpp:jingle:0";
-  const std::string XMLNS_JINGLE_ERROR      = "urn:xmpp:jingle:errors:0";
-  const std::string XMLNS_JINGLE_RTP  = "urn:xmpp:jingle:apps:rtp:1";
-  const std::string XMLNS_JINGLE_ICE_UDP    = "urn:xmpp:jingle:transports:ice-udp:0";
-
-  const std::string XMLNS_JINGLE_RAW_UDP    = "urn:xmpp:jingle:transports:raw-udp:1";
-  const std::string XMLNS_JINGLE_DTMF       = "urn:xmpp:jingle:dtmf:0";
-  const std::string XMLNS_JINGLE_FILE_TRANSFER= "urn:xmpp:jingle:apps:file-transfer:0";
+  const std::string XMLNS_JINGLE            = "urn:xmpp:tmp:jingle";
+  const std::string XMLNS_JINGLE_AUDIO_RTP  = "urn:xmpp:tmp:jingle:apps:audio-rtp";
+  const std::string XMLNS_JINGLE_ICE_UDP    = "urn:xmpp:tmp:jingle:transports:ice-udp";
+  const std::string XMLNS_JINGLE_RAW_UDP    = "urn:xmpp:tmp:jingle:transports:raw-udp";
+  const std::string XMLNS_JINGLE_VIDEO_RTP  = "urn:xmpp:tmp:jingle:apps:video-rtp";
 
   const std::string XMLNS_SHIM              = "http://jabber.org/protocol/shim";
   const std::string XMLNS_ATTENTION         = "urn:xmpp:attention:0";
-  const std::string XMLNS_RAP               = "urn:xmpp:rap:0";
-  const std::string XMLNS_BOB               = "urn:xmpp:bob";
-  const std::string XMLNS_X_CONFERENCE      = "jabber:x:conference";
 
   const std::string XMPP_STREAM_VERSION_MAJOR = "1";
   const std::string XMPP_STREAM_VERSION_MINOR = "0";
-  const std::string GLOOX_VERSION           = "1.1-svn";
+  const std::string GLOOX_VERSION           = "1.0";
   const std::string GLOOX_CAPS_NODE         = "http://camaya.net/gloox";
 
   const std::string XMLNS = "xmlns";

@@ -274,17 +274,13 @@ namespace gloox
       return false;
 
     std::string request = "POST " + m_path;
-
     if( m_connMode == ModeLegacyHTTP )
     {
       request += " HTTP/1.0\r\n";
       request += "Connection: close\r\n";
     }
     else
-    {
       request += " HTTP/1.1\r\n";
-      request += "Connection: keep-alive\r\n";
-    }
 
     request += "Host: " + m_boshedHost + "\r\n";
     request += "Content-Type: text/xml; charset=utf-8\r\n";
@@ -362,11 +358,10 @@ namespace gloox
                                            const std::string& data )
   {
     m_buffer += data;
-//     printf( "!!!!!!buffer\n\n%s\n\n", m_buffer.c_str() );
     std::string::size_type headerLength = 0;
     while( ( headerLength = m_buffer.find( "\r\n\r\n" ) ) != std::string::npos )
     {
-      m_bufferHeader = m_buffer.substr( 0, headerLength + 2 );
+      m_bufferHeader = m_buffer.substr( 0, headerLength+2 );
 
       const std::string& statusCode = m_bufferHeader.substr( 9, 3 );
       if( statusCode != "200" )
@@ -378,7 +373,7 @@ namespace gloox
         disconnect();
       }
 
-      m_bufferContentLength = strtol( getHTTPField( "Content-Length" ).c_str(), 0, 10 );
+      m_bufferContentLength = atol( getHTTPField( "Content-Length" ).c_str() );
       if( !m_bufferContentLength )
         return;
 

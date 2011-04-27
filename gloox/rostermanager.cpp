@@ -30,13 +30,13 @@ namespace gloox
   RosterManager::Query::Query( const JID& jid, const std::string& name, const StringList& groups )
     : StanzaExtension( ExtRoster )
   {
-    m_roster.push_back( new RosterItemData( jid, name, groups ) );
+    m_roster.push_back( new RosterItemData( jid.bare(), name, groups ) );
   }
 
   RosterManager::Query::Query( const JID& jid )
     : StanzaExtension( ExtRoster )
   {
-    m_roster.push_back( new RosterItemData( jid ) );
+    m_roster.push_back( new RosterItemData( jid.bare() ) );
   }
 
   RosterManager::Query::Query( const Tag* tag )
@@ -57,10 +57,10 @@ namespace gloox
 
       const std::string sub = (*it)->findAttribute( "subscription" );
       if( sub == "remove" )
-        m_roster.push_back( new RosterItemData( JID( (*it)->findAttribute( "jid" ) ) ) );
+        m_roster.push_back( new RosterItemData( (*it)->findAttribute( "jid" ) ) );
       else
       {
-        RosterItemData* rid = new RosterItemData( JID( (*it)->findAttribute( "jid" ) ),
+        RosterItemData* rid = new RosterItemData( (*it)->findAttribute( "jid" ),
                                                   (*it)->findAttribute( "name" ),
                                                   groups );
         rid->setSubscription( sub, (*it)->findAttribute( "ask" ) );
@@ -203,7 +203,7 @@ namespace gloox
 
     bool self = false;
     Roster::iterator it = m_roster.find( presence.from().bare() );
-    if( it != m_roster.end() || ( self = ( presence.from().bareJID() == m_self->jidJID() ) ) )
+    if( it != m_roster.end() || ( self = ( presence.from().bare() == m_self->jid() ) ) )
     {
       RosterItem* ri = self ? m_self : (*it).second;
       const std::string& resource = presence.from().resource();
@@ -288,7 +288,7 @@ namespace gloox
         continue;
 
       IQ iq( IQ::Set, JID(), m_parent->getID() );
-      iq.addExtension( new Query( (*it).second->jidJID(), (*it).second->name(), (*it).second->groups() ) );
+      iq.addExtension( new Query( (*it).second->jid(), (*it).second->name(), (*it).second->groups() ) );
       m_parent->send( iq, this, SynchronizeRoster );
     }
   }
@@ -385,13 +385,13 @@ namespace gloox
     RosterData::const_iterator it = data.begin();
     for( ; it != data.end(); ++it )
     {
-      Roster::iterator itr = m_roster.find( (*it)->jidJID().full() );
+      Roster::iterator itr = m_roster.find( (*it)->jid() );
       if( itr != m_roster.end() )
       {
         if( (*it)->remove() )
         {
           if( m_rosterListener )
-            m_rosterListener->handleItemRemoved( (*it)->jidJID().full() );
+            m_rosterListener->handleItemRemoved( (*it)->jid() );
           delete (*itr).second;
           m_roster.erase( itr );
         }
@@ -399,14 +399,14 @@ namespace gloox
         {
           (*itr).second->setData( *(*it) );
           if( m_rosterListener )
-            m_rosterListener->handleItemUpdated( (*it)->jidJID().full() );
+            m_rosterListener->handleItemUpdated( (*it)->jid() );
         }
       }
       else if( !(*it)->remove() )
       {
-        m_roster.insert( std::make_pair( (*it)->jidJID().full(), new RosterItem( *(*it) ) ) );
+        m_roster.insert( std::make_pair( (*it)->jid(), new RosterItem( *(*it) ) ) );
         if( m_rosterListener )
-          m_rosterListener->handleItemAdded( (*it)->jidJID().full() );
+          m_rosterListener->handleItemAdded( (*it)->jid() );
       }
     }
   }
@@ -415,7 +415,7 @@ namespace gloox
   {
     RosterData::const_iterator it = data.begin();
     for( ; it != data.end(); ++it )
-      m_roster.insert( std::make_pair( (*it)->jidJID().full(), new RosterItem( *(*it) ) ) );
+      m_roster.insert( std::make_pair( (*it)->jid(), new RosterItem( *(*it) ) ) );
   }
 
 }

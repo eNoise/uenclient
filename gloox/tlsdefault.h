@@ -43,7 +43,7 @@ namespace gloox
                                      * TLS implementations. */
         AnonymousClient   =  2,     /**< Anonymous TLS client (non-verifying), available with
                                      * GnuTLS. */
-        VerifyingServer   =  4,     /**< TLS server, verifying, available for GnuTLS and OpenSSL. */
+        VerifyingServer   =  4,     /**< TLS server, verifying, currently not available. */
         AnonymousServer   =  8      /**< Anonymous TLS server (non-verifying), available with
                                      * GnuTLS. */
       };
@@ -82,7 +82,13 @@ namespace gloox
       virtual bool isSecure() const;
 
       // reimplemented from TLSBase
+      virtual void setCACerts( const StringList& cacerts );
+
+      // reimplemented from TLSBase
       virtual const CertInfo& fetchTLSInfo() const;
+
+      // reimplemented from TLSBase
+      virtual void setClientCert( const std::string& clientKey, const std::string& clientCerts );
 
       /**
        * Returns an ORed list of supported TLS types.

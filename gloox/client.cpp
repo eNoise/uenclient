@@ -23,8 +23,7 @@
 #include "stanzaextensionfactory.h"
 #include "stanzaextension.h"
 #include "tag.h"
-#include "connectiontls.h"
-#include "connectioncompression.h"
+#include "tlsbase.h"
 #include "util.h"
 
 #if !defined( _WIN32 ) && !defined( _WIN32_WCE )
@@ -152,27 +151,22 @@ namespace gloox
     {
       m_streamFeatures = getStreamFeatures( tag );
 
-      if( !m_encryptionActive && m_tls == TLSRequired
-          && ( !hasTls() || ( ( m_streamFeatures & StreamFeatureStartTls ) != StreamFeatureStartTls ) ) )
+      if( m_tls == TLSRequired && !m_encryptionActive
+          && ( !m_encryption || !( m_streamFeatures & StreamFeatureStartTls ) ) )
       {
-        if( !hasTls() )
-          logInstance().err( LogAreaClassClient, "Client is configured to require"
-                                  " TLS but TLS support is not compiled into gloox." );
-        else
-          logInstance().err( LogAreaClassClient, "Client is configured to require"
-                                  " TLS but the server didn't offer TLS." );
+        logInstance().err( LogAreaClassClient, "Client is configured to require"
+                                " TLS but either the server didn't offer TLS or"
+                                " TLS support is not compiled in." );
         disconnect( ConnTlsNotAvailable );
       }
-      else if( m_tls > TLSDisabled && hasTls() && !m_encryptionActive
-               && ( !m_encryption || m_encryption->state() == StateDisconnected )
-               && ( ( m_streamFeatures & StreamFeatureStartTls ) == StreamFeatureStartTls ) )
+      else if( m_tls > TLSDisabled && m_encryption && !m_encryptionActive
+          && ( m_streamFeatures & StreamFeatureStartTls ) )
       {
         notifyStreamEvent( StreamEventEncryption );
         startTls();
       }
-      else if( hasCompression() && !m_compressionActive
-               && ( !m_compression || m_compression->state() == StateDisconnected )
-               && ( ( m_streamFeatures & StreamFeatureCompressZlib ) == StreamFeatureCompressZlib ) )
+      else if( m_compress && m_compression && !m_compressionActive
+          && ( m_streamFeatures & StreamFeatureCompressZlib ) )
       {
         notifyStreamEvent( StreamEventCompression );
         logInstance().warn( LogAreaClassClient, "The server offers compression, but negotiating Compression at this stage is not recommended. See XEP-0170 for details. We'll continue anyway." );
@@ -227,9 +221,8 @@ namespace gloox
           connected();
         }
       }
-      else if( hasCompression()
-               && ( !m_compression || m_compression->state() == StateDisconnected )
-               && ( m_streamFeatures & StreamFeatureCompressZlib ) )
+      else if( m_compress && m_compression && !m_compressionActive
+          && ( m_streamFeatures & StreamFeatureCompressZlib ) )
       {
         notifyStreamEvent( StreamEventCompression );
         negotiateCompression( StreamFeatureCompressZlib );
@@ -253,22 +246,17 @@ namespace gloox
     }
     else
     {
-      const std::string& name  = tag->name();
-      const std::string& xmlns = tag->xmlns();
-      if( name == "proceed" && xmlns == XMLNS_STREAM_TLS && hasTls() )
+      const std::string& name  = tag->name(),
+                         xmlns = tag->findAttribute( XMLNS );
+      if( name == "proceed" && xmlns == XMLNS_STREAM_TLS )
       {
-        logInstance().dbg( LogAreaClassClient, "Starting TLS handshake..." );
+        logInstance().dbg( LogAreaClassClient, "starting TLS handshake..." );
+
         if( m_encryption )
-          m_encryption->setConnectionImpl( m_connection );
-        else
         {
-          m_encryption = new ConnectionTLS( this, m_connection, m_logInstance );
-          m_encryption->registerTLSHandler( this );
+          m_encryptionActive = true;
+          m_encryption->handshake();
         }
-        m_connection = m_encryption;
-        m_encryption->setCACerts( m_cacerts );
-        m_encryption->setClientCert( m_clientKey, m_clientCerts );
-        m_encryption->connect();
       }
       else if( name == "failure" )
       {
@@ -292,12 +280,7 @@ namespace gloox
       else if( name == "compressed" && xmlns == XMLNS_COMPRESSION )
       {
         logInstance().dbg( LogAreaClassClient, "Stream compression initialized" );
-        if( m_compression )
-          m_compression->setConnectionImpl( m_connection );
-        else
-          m_compression = new ConnectionCompression( this, m_connection, m_logInstance );
-        m_connection = m_compression;
-        m_compression->connect();
+        m_compressionActive = true;
         header();
       }
       else if( name == "challenge" && xmlns == XMLNS_STREAM_SASL )
@@ -455,11 +438,10 @@ namespace gloox
 
   bool Client::selectResource( const std::string& resource )
   {
-    m_selectedResource = resource; // TODO: remove for 1.1
-    m_jid.setResource( resource );
-
     if( !( m_streamFeatures & StreamFeatureUnbind ) )
       return false;
+
+    m_selectedResource = resource;
 
     return true;
   }

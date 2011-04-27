@@ -12,6 +12,7 @@
 
 
 #include "socks5bytestreamserver.h"
+#include "connectiontcpserver.h"
 #include "mutexguard.h"
 #include "util.h"
 
@@ -20,51 +21,35 @@ namespace gloox
 
   SOCKS5BytestreamServer::SOCKS5BytestreamServer( const LogSink& logInstance, int port,
                                                   const std::string& ip )
-    : m_server( 0 ), m_logInstance( logInstance ), m_ip( ip ), m_port( port )
+    : m_tcpServer( 0 ), m_logInstance( logInstance ), m_ip( ip ), m_port( port )
   {
+    m_tcpServer = new ConnectionTCPServer( this, m_logInstance, m_ip, m_port );
   }
 
   SOCKS5BytestreamServer::~SOCKS5BytestreamServer()
   {
-    if( m_server )
-      delete m_server;
+    if( m_tcpServer )
+      delete m_tcpServer;
 
     ConnectionMap::const_iterator it = m_connections.begin();
     for( ; it != m_connections.end(); ++it )
       delete (*it).first;
   }
 
-  void SOCKS5BytestreamServer::setServerImpl( ConnectionBase* server )
-  {
-    removeServerImpl();
-
-    m_server = server;
-    m_server->setServer( m_ip, m_port );
-  }
-
-  void SOCKS5BytestreamServer::removeServerImpl()
-  {
-    if( m_server )
-    {
-      delete m_server;
-      m_server = 0;
-    }
-  }
-
   ConnectionError SOCKS5BytestreamServer::listen()
   {
-    if( !m_server )
-      m_server = new ConnectionTCPServer( this, m_logInstance, m_ip, m_port );
+    if( m_tcpServer )
+      return m_tcpServer->connect();
 
-    return m_server->connect();
+    return ConnNotConnected;
   }
 
   ConnectionError SOCKS5BytestreamServer::recv( int timeout )
   {
-    if( !m_server )
+    if( !m_tcpServer )
       return ConnNotConnected;
 
-    ConnectionError ce = m_server->recv( timeout );
+    ConnectionError ce = m_tcpServer->recv( timeout );
     if( ce != ConnNoError )
       return ce;
 
@@ -82,25 +67,25 @@ namespace gloox
 
   void SOCKS5BytestreamServer::stop()
   {
-    if( m_server )
+    if( m_tcpServer )
     {
-      m_server->disconnect();
-      m_server->cleanup();
+      m_tcpServer->disconnect();
+      m_tcpServer->cleanup();
     }
   }
 
   int SOCKS5BytestreamServer::localPort() const
   {
-    if( m_server )
-      return m_server->localPort();
+    if( m_tcpServer )
+      return m_tcpServer->localPort();
 
     return m_port;
   }
 
   const std::string SOCKS5BytestreamServer::localInterface() const
   {
-    if( m_server )
-      return m_server->localInterface();
+    if( m_tcpServer )
+      return m_tcpServer->localInterface();
 
     return m_ip;
   }

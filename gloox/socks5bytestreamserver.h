@@ -16,12 +16,13 @@
 
 #include "macros.h"
 #include "connectionhandler.h"
-#include "connectiontcpserver.h"
 #include "logsink.h"
 #include "mutex.h"
 
 namespace gloox
 {
+
+  class ConnectionTCPServer;
 
   /**
    * @brief A server listening for SOCKS5 bytestreams.
@@ -51,18 +52,6 @@ namespace gloox
        * Destructor.
        */
       ~SOCKS5BytestreamServer();
-
-      /**
-       * Use this function to use a different server implementation.
-       * The default is a ConnectionTCPServer.
-       * @param An alternate server.
-       */
-      void setServerImpl( ConnectionBase *server );
-
-      /**
-       * Removes the current server implementation.
-       */
-      void removeServerImpl();
 
       /**
        * Starts listening on the specified interface and port.
@@ -97,12 +86,6 @@ namespace gloox
        * @return The locally bound IP address.
        */
       const std::string localInterface() const;
-
-      /**
-       * Exposes the local server.
-       * @return The local server.
-       */
-      ConnectionBase* server() const { return m_server; }
 
       // reimplemented from ConnectionHandler
       virtual void handleIncomingConnection( ConnectionBase* server, ConnectionBase* connection );
@@ -147,7 +130,7 @@ namespace gloox
       typedef std::list<std::string> HashMap;
       HashMap m_hashes;
 
-      ConnectionBase* m_server;
+      ConnectionTCPServer* m_tcpServer;
 
       util::Mutex m_mutex;
       const LogSink& m_logInstance;

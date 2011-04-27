@@ -20,13 +20,6 @@
 namespace gloox
 {
 
-  const std::string SHA::sha1( const std::string& data )
-  {
-    SHA sha;
-    sha.feed( data );
-    return sha.hex();
-  }
-
   SHA::SHA()
   {
     init();
@@ -221,7 +214,7 @@ namespace gloox
   {
     Message_Block[Message_Block_Index++] = 0x80;
 
-    if( Message_Block_Index > 56 )
+    if( Message_Block_Index > 55 )
     {
       while( Message_Block_Index < 64 )
       {

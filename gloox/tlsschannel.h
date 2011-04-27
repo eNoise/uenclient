@@ -10,8 +10,8 @@
  * This software is distributed without any warranty.
  */
 
-#ifndef TLSSCHANNELBASE_H__
-#define TLSSCHANNELBASE_H__
+#ifndef TLSSCHANNEL_H__
+#define TLSSCHANNEL_H__
 
 #include "tlsbase.h"
 
@@ -35,7 +35,7 @@ namespace gloox
    * @author Jakob Schroeter <js@camaya.net>
    * @since 0.9
    */
-  class SChannelBase : public TLSBase
+  class SChannel : public TLSBase
   {
     public:
       /**
@@ -43,17 +43,18 @@ namespace gloox
        * @param th The TLSHandler to handle TLS-related events.
        * @param server The server to use in certificate verification.
        */
-      SChannelBase( TLSHandler* th, const std::string& server );
+      SChannel( TLSHandler* th, const std::string& server );
 
       /**
        * Virtual destructor.
        */
-      virtual ~SChannelBase();
+      virtual ~SChannel();
 
       // reimplemented from TLSBase
-      virtual bool init( const std::string& clientKey = EmptyString,
-                         const std::string& clientCerts = EmptyString,
-                         const StringList& cacerts = StringList() );
+      virtual bool init( const std::string& /*clientKey*/ = EmptyString,
+                         const std::string& /*clientCerts*/ = EmptyString,
+                         const StringList& /*cacerts*/ = StringList() )
+        { return true; }
 
       // reimplemented from TLSBase
       virtual bool encrypt( const std::string& data );
@@ -64,10 +65,17 @@ namespace gloox
       // reimplemented from TLSBase
       virtual void cleanup();
 
-    protected:
-      virtual void handshakeStage() = 0;
-      virtual void privateCleanup() {}
+      // reimplemented from TLSBase
+      virtual bool handshake();
 
+      // reimplemented from TLSBase
+      virtual void setCACerts( const StringList& cacerts );
+
+      // reimplemented from TLSBase
+      virtual void setClientCert( const std::string& clientKey, const std::string& clientCerts );
+
+    private:
+      void handshakeStage( const std::string& data );
       void setSizes();
 
       int filetime2int( FILETIME t );
@@ -88,11 +96,6 @@ namespace gloox
       std::string m_buffer;
 
       bool m_cleanedup;
-      bool m_haveCredentialsHandle;
-
-      HCERTSTORE m_store;
-      PCCERT_CONTEXT m_cert;
-      SCHANNEL_CRED m_tlsCred;
 
       // windows error outputs
 //       void print_error( int errorcode, const char* place = 0 );
@@ -102,4 +105,4 @@ namespace gloox
 
 #endif // HAVE_WINTLS
 
-#endif // TLSSCHANNELBASE_H__
+#endif // TLSSCHANNEL_H__

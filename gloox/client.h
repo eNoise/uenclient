@@ -149,7 +149,7 @@ namespace gloox
        * Use this function to select a resource identifier that has been bound
        * previously by means of bindResource(). It is not necessary to call this function
        * if only one resource is bound. Use hasResourceBind() to find out if the
-       * server supports binding of multiple resources.
+       * server supports binding of multiple resources. selectResource() is a NOOP if it doesn't.
        * @param resource A resource string that has been bound previously.
        * @note If the resource string has not been bound previously, future sending of
        * stanzas will fail.
@@ -301,7 +301,7 @@ namespace gloox
           /**
            * Constructs a new object with the given resource string.
            * @param resource The resource to set.
-           * @param bind Indicates whether this is an bind or unbind request request.
+           * @param bind Indicates whether this is an bind or unbind request.
            * Defaults to @b true (bind).
            */
           ResourceBind( const std::string& resource, bool bind = true );
