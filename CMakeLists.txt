@@ -53,6 +53,7 @@ set(UEN_CPP
 	      src/torrentdialog.cpp
 	      src/addtorrentdialog.cpp
 
+	      src/bencoder.cpp
 	      src/bencodeparser.cpp
 	      src/connectionmanager.cpp
 	      src/metainfo.cpp

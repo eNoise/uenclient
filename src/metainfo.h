@@ -67,6 +67,8 @@ struct MetaInfoMultiFile
 
 class MetaInfo
 {
+    friend class Bencoder;
+    
 public:
     enum FileForm {
         SingleFileForm,

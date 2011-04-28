@@ -51,7 +51,8 @@ void uenclient::startSession()
     tabWidget = new QTabWidget;
     ChatDialog* chat = new ChatDialog(this, jabberJID, jabberPassword, jabberNick);
     tabWidget->addTab(chat, tr("Chat"));
-    tabWidget->addTab(new TorrentDialog(this), tr("Transfers"));
+    TorrentDialog* torrent = new TorrentDialog(this); 
+    tabWidget->addTab(torrent, tr("Transfers"));
     tabWidget->setTabsClosable(true);
     connect(tabWidget, SIGNAL(tabCloseRequested(int)), chat, SLOT(onTabClose(int)));
     setCentralWidget(tabWidget);

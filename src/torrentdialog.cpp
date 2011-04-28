@@ -773,12 +773,12 @@ void TorrentDialog::acceptFileDrop(const QString &fileName)
 
 void TorrentDialog::closeEvent(QCloseEvent *)
 {
-    if (jobs.isEmpty())
-        return;
-
     // Save upload / download numbers.
     saveSettings();
     saveChanges = false;
+
+    if (jobs.isEmpty())
+        return;
 
     quitDialog = new QProgressDialog(tr("Disconnecting from trackers"), tr("Abort"), 0, jobsToStop, this);
 
