@@ -44,6 +44,9 @@
 #include <QDateTime>
 #include <QMetaType>
 #include <QString>
+#include <QFile>
+#include <QDir>
+#include <QCryptographicHash>
 
 MetaInfo::MetaInfo()
 {
@@ -138,6 +141,63 @@ bool MetaInfo::parse(const QByteArray &data)
         metaInfoCreatedBy = QString::fromUtf8(dict.value("created by").toByteArray());
 
     return true;
+}
+
+bool MetaInfo::hashDirectory(const QString& path, int metaLenght)
+{
+	QDir fdir(path);
+	if(!fdir.isReadable())
+		return false;
+	
+	foreach(QString curFilePath, fdir.entryList())
+	{
+		QFile curFile(curFilePath);
+		curFile.open(QIODevice::ReadOnly);
+		if(!curFile.isOpen() || !curFile.isReadable())
+		{
+			curFile.close();
+			return false;
+		}
+		
+		MetaInfoMultiFile curMetaInfo;
+		curMetaInfo.length = curFile.size();
+		curMetaInfo.path = curFilePath.remove(fdir.path());
+		
+		while(!curFile.atEnd())
+			metaInfoSha1Sums << QCryptographicHash::hash(curFile.read(metaLenght), QCryptographicHash::Sha1);
+	
+		metaInfoMultiFiles << curMetaInfo;
+		
+		curFile.close();
+	}
+	
+	return true;
+}
+
+bool MetaInfo::hashFile(const QString& file, int metaLenght)
+{
+	QFile fopen(file);
+	fopen.open(QIODevice::ReadOnly);
+	if(!fopen.isOpen() || !fopen.isReadable())
+	{
+		fopen.close();
+		return false;
+	}
+	
+	metaInfoFileForm = SingleFileForm;
+	MetaInfoSingleFile hashFile;
+	
+	hashFile.pieceLength = metaLenght;
+	hashFile.length = fopen.size();
+	hashFile.name = fopen.fileName();
+	
+	while(!fopen.atEnd())
+		hashFile.sha1Sums << QCryptographicHash::hash(fopen.read(metaLenght), QCryptographicHash::Sha1);
+	
+	metaInfoSingleFile = hashFile;
+	
+	fopen.close();
+	return true;
 }
 
 QByteArray MetaInfo::infoValue() const

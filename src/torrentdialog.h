@@ -41,7 +41,7 @@ class TorrentDialog : public QWidget
     Q_OBJECT
 public:
     TorrentDialog(QWidget *parent = 0);
-
+    
     QSize sizeHint() const;
     const TorrentClient *clientForRow(int row) const;
     

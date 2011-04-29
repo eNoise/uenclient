@@ -701,6 +701,10 @@ void TorrentDialog::setUploadLimit(int value)
     int rate = rateFromValue(value);
     uploadLimitLabel->setText(tr("%1 KB/s").arg(QString().sprintf("%4d", rate)));
     RateController::instance()->setUploadLimit(rate * 1024);
+    if (!saveChanges) {
+        saveChanges = true;
+        QTimer::singleShot(5000, this, SLOT(saveSettings()));
+    }
 }
 
 void TorrentDialog::setDownloadLimit(int value)
@@ -708,6 +712,10 @@ void TorrentDialog::setDownloadLimit(int value)
     int rate = rateFromValue(value);
     downloadLimitLabel->setText(tr("%1 KB/s").arg(QString().sprintf("%4d", rate)));
     RateController::instance()->setDownloadLimit(rate * 1024);
+    if (!saveChanges) {
+        saveChanges = true;
+        QTimer::singleShot(5000, this, SLOT(saveSettings()));
+    }
 }
 
 void TorrentDialog::about()
@@ -723,9 +731,10 @@ void TorrentDialog::about()
 		+ tr(" Alexey DEg Kasyanchuk - main developer (first alpha and later)\n")
 		+ tr(" Sergey Happ Svirsky - maintainer and developer (first alpha and later)\n")
 		+ tr(" Egor Nagg Bogatov - maintainer and support (first alpha and later)\n")
-		+ tr(" Un1c0rn - Ideological leader and support (first alpha and later)\n")
-		+ tr(" Leto - Designer (first alpha and later)\n")
-		+ tr(" Rabbid - Tester (first alpha and later)\n")
+		+ tr(" Un1c0rn - ideological leader and support (first alpha and later)\n")
+		+ tr(" Leto - designer (first alpha and later)\n")
+		+ tr(" Rabbid - tester (first alpha and later)\n")
+		+ tr(" Jelu - tester (first alpha and later)\n")
     );
 
     QPushButton *quitButton = new QPushButton("OK");

@@ -79,6 +79,8 @@ public:
     void clear();
 
     bool parse(const QByteArray &data);
+    bool hashDirectory(const QString& path, int metaLenght = 524288);
+    bool hashFile(const QString& file, int metaLenght = 524288);
     QString errorString() const;
 
     QByteArray infoValue() const;
