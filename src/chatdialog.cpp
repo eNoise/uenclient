@@ -55,7 +55,7 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
 	chatBox = new QTextBrowser();
 	subjectLine = new QLineEdit();
 
-	chatBox->setStyleSheet("QTextBrowser { background: url('bak2.JPG'); background-repeat: no-repeat; background-attachment: fixed; }");
+	chatBox->setStyleSheet("QTextBrowser { background: url('share/icons/chat_background.jpg'); background-repeat: no-repeat; background-attachment: fixed; }");
 	
 	ChatUserItem* userListDelegate = new ChatUserItem();
 	inChatList->setItemDelegate(userListDelegate);
@@ -258,7 +258,7 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 		part.avatarhash = avatarHash.hash().c_str();
 		if(part.avatarhash.length() > 0)
 		{
-			QFile avatar("avatars/" + part.avatarhash);
+			QFile avatar("share/avatars/" + part.avatarhash);
 			avatar.open(QIODevice::ReadOnly);
 			if(avatar.size() > 0)
 				part.avatar = avatar.readAll();
@@ -291,9 +291,14 @@ void ChatDialog::handleVCard(const gloox::JID& jid, const gloox::VCard* vcard)
 			{
 				it->avatar = QByteArray().fromRawData(vcard->photo().binval.data(),vcard->photo().binval.size());
 				it->avatarhash = QCryptographicHash::hash(it->avatar, QCryptographicHash::Sha1).toHex();
-				QFile avatar("avatars/" + it->avatarhash);
+				QFile avatar("share/avatars/" + it->avatarhash);
 				avatar.open(QIODevice::WriteOnly);
 				avatar.write(it->avatar);
+				//fixes broken for display avatars
+				avatar.close();
+				avatar.open(QIODevice::ReadOnly);
+				it->avatar = avatar.readAll();
+				// fix end
 				avatar.close();
 				emit rebuildUserList();
 				break;

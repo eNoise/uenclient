@@ -3,3 +3,4 @@ build/
 win32build/
 .kdev4/
 *.exe
+share/avatars/*

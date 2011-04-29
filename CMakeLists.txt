@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
+
 project(uenclient)
 set (PROJECT_NAME_GLOBAL uenclient)
 set (VERSION "0.1.0")
+
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include (CheckIncludeFile)
 
@@ -82,7 +84,8 @@ if(WIN32)
         set(UEN_LIBS ${UEN_LIBS} 
                       dnsapi
                       secur32
-                      ws2_32
+		      crypt32
+		      wsock32
         )
 endif(WIN32)
 
@@ -107,3 +110,33 @@ add_executable(uenclient ${UEN_CPP} ${UEN_UI})
 target_link_libraries(uenclient ${UEN_LIBS})
 
 #Install
+if(WIN32)
+  set (BIN_DIR .)
+else(WIN32)
+  set (BIN_DIR bin)
+endif(WIN32)
+
+if (NOT SHARE_DIR)
+  set (SHARE_DIR "share")
+endif (NOT SHARE_DIR)
+
+if (APPLE)
+  set (CLIENT_DATA_DIR "${PROJECT_NAME_GLOBAL}.app")
+elseif (WIN32)
+  set (CLIENT_DATA_DIR ".")
+else (APPLE)
+  set (CLIENT_DATA_DIR "${CMAKE_INSTALL_PREFIX}/${SHARE_DIR}/${PROJECT_NAME_GLOBAL}")
+endif (APPLE)
+
+
+install (TARGETS uenclient DESTINATION ${BIN_DIR})
+#if(WIN32)
+#  install (FILES pichi.xml DESTINATION ${CLIENT_DATA_DIR})
+#else(WIN32)
+#  install (FILES pichi.xml DESTINATION "${CLIENT_DATA_DIR}/config")
+#endif(WIN32)
+install (DIRECTORY share/avatars/ DESTINATION "${CLIENT_DATA_DIR}/avatars")
+install (DIRECTORY share/smiles/ DESTINATION "${CLIENT_DATA_DIR}/smiles")
+install (DIRECTORY share/icons/ DESTINATION "${CLIENT_DATA_DIR}/icons")
+
+
