@@ -35,7 +35,7 @@ QString Helper::timeToString(time_t t, QString format)
 
 void Helper::chatTextModify(QString& text)
 {
-	text.replace(QRegExp("((http|ftp|magnet):[^(\\s|\\n)]+)"),"<a href=\"\\1\">\\1</a>");
+	text.replace(QRegExp("((http|https|ftp|magnet|dchub|adc):[^(\\s|\\n)]+)"),"<a href=\"\\1\">\\1</a>");
 	text.replace(QRegExp(":([a-z0-9_-]+):"),"<img src=\"smiles/kolobok/\\1.gif\" />");
 	text.replace("\n","<br />");
 	if(text.startsWith("/me "))

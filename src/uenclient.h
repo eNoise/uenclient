@@ -4,6 +4,7 @@
 #include <QtGui/QMainWindow>
 #include <QTableWidget>
 #include <QLabel>
+#include <QSystemTrayIcon>
 
 class uenclient : public QMainWindow
 {
@@ -30,6 +31,8 @@ public:
     bool isJabberOn;
     bool isTorrentOn;
     bool isSearchOn;
+protected:
+    void closeEvent(QCloseEvent *event);
 private:
     QString jabberJID;
     QString jabberPassword;
@@ -38,10 +41,13 @@ private:
     QString apiPassword; // md5sum
     
     QLabel* displayStatus;
+    QSystemTrayIcon* tray;
     bool isSession;
 public slots:
     void showTorrentCreateDialog();
     void updateServicesStatus();
+    void trayAction(QSystemTrayIcon::ActivationReason reason);
+    void closeThroughtTray();
 };
 
 #endif // uenclient_H
