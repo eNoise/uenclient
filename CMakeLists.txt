@@ -72,6 +72,19 @@ set(UEN_CPP
 qt4_automoc(${UEN_CPP})
 qt4_wrap_ui(UEN_UI forms/addtorrentform.ui)
 
+#translations
+file (GLOB UEN_TRANS translations/*.ts)
+option (UPDATE_TRANSLATIONS "Update source translation translations/*.ts files (WARNING: make clean will delete the source .ts files! Danger!)")
+
+if (UPDATE_TRANSLATIONS)
+  qt4_create_translation(UEN_QM ${UEN_CPP} ${UEN_TRANS})
+else (UPDATE_TRANSLATIONS)
+  qt4_add_translation(UEN_QM ${UEN_TRANS})
+endif (UPDATE_TRANSLATIONS) 
+
+#add_custom_target (uenclient DEPENDS ${UEN_QM})
+
+
 set(UEN_LIBS
 		${QT_QTCORE_LIBRARY} 
 		${QT_QTGUI_LIBRARY}
@@ -106,7 +119,7 @@ include_directories(
 		    ${QT_INCLUDES} 
 		    ${CMAKE_CURRENT_BINARY_DIR}
 )
-add_executable(uenclient ${UEN_CPP} ${UEN_UI})
+add_executable(uenclient ${UEN_CPP} ${UEN_UI} ${UEN_QM})
 target_link_libraries(uenclient ${UEN_LIBS})
 
 #Install
@@ -127,7 +140,7 @@ elseif (WIN32)
 else (APPLE)
   set (CLIENT_DATA_DIR "${CMAKE_INSTALL_PREFIX}/${SHARE_DIR}/${PROJECT_NAME_GLOBAL}")
 endif (APPLE)
-
+add_definitions(-DCLIENT_DATA_DIR="${CLIENT_DATA_DIR}")
 
 install (TARGETS uenclient DESTINATION ${BIN_DIR})
 #if(WIN32)
@@ -139,4 +152,4 @@ install (DIRECTORY share/avatars/ DESTINATION "${CLIENT_DATA_DIR}/avatars")
 install (DIRECTORY share/smiles/ DESTINATION "${CLIENT_DATA_DIR}/smiles")
 install (DIRECTORY share/icons/ DESTINATION "${CLIENT_DATA_DIR}/icons")
 
-
+install(FILES ${UEN_QM} DESTINATION "${CLIENT_DATA_DIR}/translations")

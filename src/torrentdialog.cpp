@@ -117,17 +117,17 @@ TorrentDialog::TorrentDialog(QWidget *parent)
     header->resizeSection(5, qMax(fm.width(headers.at(5) + "  "), fm.width(tr("Downloading") + "  ")));
 
     // Create common actions
-    QAction *newTorrentAction = new QAction(QIcon("share/icons/bottom.png"), tr("Add &new torrent"), this);
-    pauseTorrentAction = new QAction(QIcon("share/icons/player_pause.png"), tr("&Pause torrent"), this);
-    removeTorrentAction = new QAction(QIcon("share/icons/player_stop.png"), tr("&Remove torrent"), this);
+    QAction *newTorrentAction = new QAction(QIcon(QString(CLIENT_DATA_DIR) + "/icons/bottom.png"), tr("Add &new torrent"), this);
+    pauseTorrentAction = new QAction(QIcon(QString(CLIENT_DATA_DIR) + "/icons/player_pause.png"), tr("&Pause torrent"), this);
+    removeTorrentAction = new QAction(QIcon(QString(CLIENT_DATA_DIR) + "/icons/player_stop.png"), tr("&Remove torrent"), this);
     
     // File menu
     QMenu *fileMenu = ((QMainWindow*)parent)->menuBar()->addMenu(tr("&Torrent"));
     fileMenu->addAction(newTorrentAction);
     fileMenu->addAction(pauseTorrentAction);
     fileMenu->addAction(removeTorrentAction);
-    fileMenu->addSeparator();
-    fileMenu->addAction(QIcon("share/icons/exit.png"), tr("E&xit"), this, SLOT(close()));
+    //fileMenu->addSeparator();
+    //fileMenu->addAction(QIcon(QString(CLIENT_DATA_DIR) + "/icons/exit.png"), tr("E&xit"), this, SLOT(close()));
 
     // Help menu
     QMenu *helpMenu = ((QMainWindow*)parent)->menuBar()->addMenu(tr("&Help"));
@@ -142,8 +142,8 @@ TorrentDialog::TorrentDialog(QWidget *parent)
     topBar->addAction(removeTorrentAction);
     topBar->addAction(pauseTorrentAction);
     topBar->addSeparator();
-    downActionTool = topBar->addAction(QIcon(tr("share/icons/1downarrow.png")), tr("Move down"));
-    upActionTool = topBar->addAction(QIcon(tr("share/icons/1uparrow.png")), tr("Move up"));
+    downActionTool = topBar->addAction(QIcon(QString(CLIENT_DATA_DIR) + "/icons/1downarrow.png"), tr("Move down"));
+    upActionTool = topBar->addAction(QIcon(QString(CLIENT_DATA_DIR) + "/icons/1uparrow.png"), tr("Move up"));
 
     // Bottom toolbar
     QToolBar *bottomBar = new QToolBar(tr("Rate control"));
@@ -573,10 +573,10 @@ void TorrentDialog::setActionsEnabled()
     pauseTorrentAction->setEnabled(item != 0 && pauseEnabled);
 
     if (client && client->state() == TorrentClient::Paused) {
-        pauseTorrentAction->setIcon(QIcon("share/icons/player_play.png"));
+        pauseTorrentAction->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/player_play.png"));
         pauseTorrentAction->setText(tr("Resume torrent"));
     } else {
-        pauseTorrentAction->setIcon(QIcon("share/icons/player_pause.png"));
+        pauseTorrentAction->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/player_pause.png"));
         pauseTorrentAction->setText(tr("Pause torrent"));
     }
 
@@ -721,8 +721,8 @@ void TorrentDialog::setDownloadLimit(int value)
 void TorrentDialog::about()
 {
     QLabel *icon = new QLabel;
-    icon->setPixmap(QPixmap("uenlogo_350.png"));
-
+    icon->setPixmap(QPixmap(QString(CLIENT_DATA_DIR) + "/icons/uenlogo_350.png"));
+    
     QLabel *text = new QLabel;
     text->setWordWrap(true);
     text->setText(

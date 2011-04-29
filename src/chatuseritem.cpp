@@ -63,7 +63,7 @@ void ChatUserItem::paint(QPainter* painter, const QStyleOptionViewItem& option, 
     if(avatarData.size() > 0)
 	avatar.addPixmap(QPixmap().fromImage(QImage().fromData(avatarData)));
     else
-	avatar.addFile("share/icons/default_avatar.png");
+	avatar.addFile(QString(CLIENT_DATA_DIR) + "/icons/default_avatar.png");
     //qDebug() << avatar.actualSize(option.decorationSize);
     painter->drawPixmap(QPoint(2,rect.top()),avatar.pixmap(50,50));
     

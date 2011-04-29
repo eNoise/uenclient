@@ -5,7 +5,9 @@
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-    uenclient foo;
-    foo.show();
+    
+    uenclient uenClient;
+    uenClient.show();
+    
     return app.exec();
 }

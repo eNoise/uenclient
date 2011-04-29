@@ -258,7 +258,7 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 		part.avatarhash = avatarHash.hash().c_str();
 		if(part.avatarhash.length() > 0)
 		{
-			QFile avatar("share/avatars/" + part.avatarhash);
+			QFile avatar(QString(CLIENT_DATA_DIR) + "/avatars/" + part.avatarhash);
 			avatar.open(QIODevice::ReadOnly);
 			if(avatar.size() > 0)
 				part.avatar = avatar.readAll();
@@ -291,7 +291,7 @@ void ChatDialog::handleVCard(const gloox::JID& jid, const gloox::VCard* vcard)
 			{
 				it->avatar = QByteArray().fromRawData(vcard->photo().binval.data(),vcard->photo().binval.size());
 				it->avatarhash = QCryptographicHash::hash(it->avatar, QCryptographicHash::Sha1).toHex();
-				QFile avatar("share/avatars/" + it->avatarhash);
+				QFile avatar(QString(CLIENT_DATA_DIR) + "/avatars/" + it->avatarhash);
 				avatar.open(QIODevice::WriteOnly);
 				avatar.write(it->avatar);
 				//fixes broken for display avatars

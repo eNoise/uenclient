@@ -23,6 +23,7 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QCheckBox>
 
 class LoginForm : public QDialog
 {
@@ -34,9 +35,11 @@ private:
 	QLineEdit* login;
 	QLineEdit* password;
 	QLineEdit* nick;
+	QCheckBox* isAutoLogin;
 	QPushButton* startLogin;
 public slots:
-	void doLogin();
+	int doLogin();
+	int exec();
 };
 
 #endif // LOGINFORM_H

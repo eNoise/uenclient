@@ -16,6 +16,7 @@ uenclient::uenclient()
     setWindowTitle(tr("UeN Client"));
     QAction* a = new QAction(this);
     a->setText( tr("Quit") );
+    a->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/exit.png"));
     connect(a, SIGNAL(triggered()), SLOT(close()) );
     QMenu* fileMenu = menuBar()->addMenu( "File" );
 
@@ -40,7 +41,18 @@ uenclient::uenclient()
 #endif
     
     LoginForm* login = new LoginForm(this);
-    login->exec();
+    if(login->exec() == QDialog::Accepted)
+		startSession();
+    else
+		isSession = false;
+}
+
+void uenclient::show()
+{
+	if(isSession)
+		QMainWindow::show();
+	else
+		close(); // broken session
 }
 
 void uenclient::startSession()
@@ -48,6 +60,7 @@ void uenclient::startSession()
 #ifndef NDEBUG
     qDebug() << "[UENDEBUG] " << "Start client session"; 
 #endif
+    isSession = true;
     tabWidget = new QTabWidget;
     ChatDialog* chat = new ChatDialog(this, jabberJID, jabberPassword, jabberNick);
     tabWidget->addTab(chat, tr("Chat"));

@@ -13,7 +13,8 @@ public:
     virtual ~uenclient();
     QTabWidget *tabWidget;
     void startSession();
-
+    void show();
+    
     void setJabberJID(QString get){ jabberJID = get; };
     void setJabberPassword(QString get){ jabberPassword = get; };
     void setJabberNick(QString get){ jabberNick = get; };
@@ -37,6 +38,7 @@ private:
     QString apiPassword; // md5sum
     
     QLabel* displayStatus;
+    bool isSession;
 public slots:
     void showTorrentCreateDialog();
     void updateServicesStatus();

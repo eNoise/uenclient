@@ -36,6 +36,7 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	password->setEchoMode(QLineEdit::Password);
 	nick = new QLineEdit;
 	startLogin = new QPushButton(tr("Login"));
+	isAutoLogin = new QCheckBox(tr("Auto-login ?"));
 	
 	QVBoxLayout* main = new QVBoxLayout;
 	QHBoxLayout* loginLine = new QHBoxLayout;
@@ -52,19 +53,20 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	main->addLayout(loginLine);
 	main->addLayout(passwordLine);
 	main->addLayout(nickLine);
+	main->addWidget(isAutoLogin);
 	main->addWidget(startLogin);
 	
 	setLayout(main);
 	setModal(true);
 	setWindowTitle(tr("Enter your forum login"));
-	connect(this, SIGNAL(rejected()), parent, SLOT(close()));
 	connect(startLogin, SIGNAL(pressed()), this, SLOT(doLogin()));
 	
 	QSettings settings("eNoise", "UeNclient");
 	login->setText(settings.value("LastSessionLogin").toString());
 	password->setText(settings.value("LastSessionPassword").toString());
 	nick->setText(settings.value("LastSessionNick").toString());
-	
+	isAutoLogin->setCheckState((settings.value("IsAutoLogin").toBool()) ? Qt::Checked : Qt::Unchecked);
+
 #ifndef NDEBUG
     qDebug() << "[UENDEBUG] " << "Init login form finished"; 
 #endif
@@ -75,13 +77,21 @@ LoginForm::~LoginForm()
 
 }
 
-void LoginForm::doLogin()
+int LoginForm::exec()
+{
+	if(isAutoLogin->checkState() == Qt::Checked)
+		return doLogin();
+	else
+		return QDialog::exec();
+}
+
+int LoginForm::doLogin()
 {
 	QString l = login->text();
 	QString p = password->text();
 	QString n = nick->text();
 	if(l.size() == 0 || p.size() == 0 || n.size() == 0)
-		return; // Пустые поля
+		return QDialog::Rejected; // Пустые поля
 	((uenclient*)parent())->setJabberJID(l + "@jabber.uruchie.org");
 	((uenclient*)parent())->setJabberPassword(p);
 	((uenclient*)parent())->setJabberNick(n);
@@ -90,10 +100,13 @@ void LoginForm::doLogin()
 	settings.setValue("LastSessionLogin", l);
 	settings.setValue("LastSessionPassword", p);
 	settings.setValue("LastSessionNick", n);
+	settings.setValue("IsAutoLogin", (isAutoLogin->checkState() == Qt::Checked));
 	settings.sync();
 	
-	((uenclient*)parent())->startSession();
-	close();
+	//((uenclient*)parent())->startSession();
+	emit accept();
+	//delete this;
+	return QDialog::Accepted;
 }
 
 #include "loginform.moc"
