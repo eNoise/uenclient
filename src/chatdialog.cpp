@@ -310,6 +310,12 @@ void ChatDialog::handleVCard(const gloox::JID& jid, const gloox::VCard* vcard)
 
 void ChatDialog::sendMessage()
 {
+	if(inputLine->text().startsWith("/nick ") && inputLine->text().mid(6).length() > 0)
+	{
+		forumroom->setNick(inputLine->text().mid(6).toUtf8().data());
+		inputLine->clear();
+		return;
+	}
 	gloox::Message m( gloox::Message::Groupchat, gloox::JID("main@conference.jabber.uruchie.org"), inputLine->text().toUtf8().data() );
 	client->send( m );
 	inputLine->clear();
