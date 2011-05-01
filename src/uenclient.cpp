@@ -50,6 +50,8 @@ uenclient::uenclient()
     qDebug() << "[UENDEBUG] " << "Init main window finished"; 
 #endif
     
+    isSessionStarted = false;
+    
     LoginForm* login = new LoginForm(this);
     if(login->exec() == QDialog::Accepted)
 		startSession();
@@ -100,18 +102,21 @@ void uenclient::trayAction(QSystemTrayIcon::ActivationReason reason)
 
 void uenclient::startSession()
 {
+    if(!isSessionStarted)
+    {
 #ifndef NDEBUG
     qDebug() << "[UENDEBUG] " << "Start client session"; 
 #endif
-    isSession = true;
-    tabWidget = new QTabWidget;
-    ChatDialog* chat = new ChatDialog(this, jabberJID, jabberPassword, jabberNick);
-    tabWidget->addTab(chat, tr("Chat"));
-    TorrentDialog* torrent = new TorrentDialog(this); 
-    tabWidget->addTab(torrent, tr("Transfers"));
-    tabWidget->setTabsClosable(true);
-    connect(tabWidget, SIGNAL(tabCloseRequested(int)), chat, SLOT(onTabClose(int)));
-    setCentralWidget(tabWidget);
+	      isSessionStarted = true;
+	      tabWidget = new QTabWidget;
+	      ChatDialog* chat = new ChatDialog(this, jabberJID, jabberPassword, jabberNick);
+	      tabWidget->addTab(chat, tr("Chat"));
+	      TorrentDialog* torrent = new TorrentDialog(this); 
+	      tabWidget->addTab(torrent, tr("Transfers"));
+	      tabWidget->setTabsClosable(true);
+	      connect(tabWidget, SIGNAL(tabCloseRequested(int)), chat, SLOT(onTabClose(int)));
+	      setCentralWidget(tabWidget);
+    }
 }
 
 void uenclient::updateServicesStatus()

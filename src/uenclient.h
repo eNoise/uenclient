@@ -37,6 +37,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 private:
+    bool isSessionStarted;
     QString jabberJID;
     QString jabberPassword;
     QString jabberNick;
