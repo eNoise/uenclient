@@ -153,6 +153,7 @@ public slots:
   void addToMessageBox(QString msg, const QString& from, const QString& nick);
   void updateUserList();
   void printUserState(bool online, QString jid, QString nick);
+  void quoteNick(QListWidgetItem* item);
   void beginPrivate(QListWidgetItem* item);
   void beginPrivate(QString jid, QString nick, QString defaultMsg = "");
   void beginPrivate(gloox::MessageSession* session, QString defaultMsg = "");

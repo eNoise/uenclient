@@ -85,6 +85,7 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
 	connect(this, SIGNAL(updateSubject(QString)), SLOT(subjectUpdated(QString)));
 	connect(inputLine, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
 	connect(inChatList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(beginPrivate(QListWidgetItem*)));
+	connect(inChatList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(quoteNick(QListWidgetItem*)));
 	//connect(inputLine, SIGNAL(), this, SLOT(sendMessage()));
 	connect(this, SIGNAL(reciveMessage(QString,QString,QString)), this, SLOT(addToMessageBox(QString,QString,QString)));
 	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
@@ -317,18 +318,24 @@ void ChatDialog::sendMessage()
 
 void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString& nick)
 {
-	QString color = "FF0000";
+	QString color = "888888";
+	bool findJid = false;
 	for(std::vector<Participant>::iterator it = participants.begin(); it != participants.end(); it++)
 	{
 		//qDebug() << it->color.c_str();
 		if(it->roomjid == from)
 		{
 			color = it->color;
+			findJid = true;
 			break;
 		}
 	}
 	
-	QString format = "<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s";
+	QString format;
+	if(findJid)
+		format = "<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s";
+	else
+		format = "<font color=\"#%s\">[%s] &lt;%s&gt; %s</font>";
 	if(msg.startsWith("/me "))
 		format = "<font color=\"#%s\">[%s]* %s %s</font>";
 	Helper::chatTextModify(msg);
@@ -338,6 +345,11 @@ void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString
 	chatBox->append(fin);
 }
 
+
+void ChatDialog::quoteNick(QListWidgetItem* item)
+{
+	inputLine->setText(inputLine->text() + qvariant_cast<QString>(item->data(ChatUserItem::userNick)) + ": "); 
+}
 
 void ChatDialog::beginPrivate(QListWidgetItem* item)
 {

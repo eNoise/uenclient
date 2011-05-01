@@ -21,16 +21,19 @@ public:
     void setJabberNick(QString get){ jabberNick = get; };
     void setApiLogin(QString get){ apiLogin = get; };
     void setApiPassword(QString get){ apiPassword = get; };
+    void setApiId(QString get){ apiId = get; };
 
     QString getJabberJID(){ return jabberJID; };
     QString getJabberPassword(){ return jabberPassword; };
     QString getJabberNick(){ return jabberNick; };
     QString getApiLogin(){ return apiLogin; };
     QString getApiPassword(){ return apiPassword; };
+    QString getApiId(){ return apiId; };
     
     bool isJabberOn;
     bool isTorrentOn;
     bool isSearchOn;
+    bool isSession;
 protected:
     void closeEvent(QCloseEvent *event);
 private:
@@ -39,10 +42,10 @@ private:
     QString jabberNick;
     QString apiLogin;
     QString apiPassword; // md5sum
+    QString apiId;
     
     QLabel* displayStatus;
     QSystemTrayIcon* tray;
-    bool isSession;
 public slots:
     void showTorrentCreateDialog();
     void updateServicesStatus();

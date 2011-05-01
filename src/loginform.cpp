@@ -24,6 +24,12 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QSettings>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QScriptValue>
+#include <QScriptEngine>
+#include <QCryptographicHash>
+
 
 #ifndef NDEBUG
 #include <QDebug>
@@ -37,11 +43,13 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	nick = new QLineEdit;
 	startLogin = new QPushButton(tr("Login"));
 	isAutoLogin = new QCheckBox(tr("Auto-login ?"));
+	isForumLogin = new QCheckBox(tr("UAPI login ?"));
 	
 	QVBoxLayout* main = new QVBoxLayout;
 	QHBoxLayout* loginLine = new QHBoxLayout;
 	QHBoxLayout* passwordLine = new QHBoxLayout;
 	QHBoxLayout* nickLine = new QHBoxLayout;
+	QHBoxLayout* checkLink = new QHBoxLayout;
 	
 	loginLine->addWidget(new QLabel(tr("Login:")));
 	loginLine->addWidget(login);
@@ -49,11 +57,13 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	passwordLine->addWidget(password);
 	nickLine->addWidget(new QLabel(tr("Your nickname:")));
 	nickLine->addWidget(nick);
+	checkLink->addWidget(isAutoLogin);
+	checkLink->addWidget(isForumLogin);
 	
 	main->addLayout(loginLine);
 	main->addLayout(passwordLine);
 	main->addLayout(nickLine);
-	main->addWidget(isAutoLogin);
+	main->addLayout(checkLink);
 	main->addWidget(startLogin);
 	
 	setLayout(main);
@@ -66,7 +76,12 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	password->setText(settings.value("LastSessionPassword").toString());
 	nick->setText(settings.value("LastSessionNick").toString());
 	isAutoLogin->setCheckState((settings.value("IsAutoLogin").toBool()) ? Qt::Checked : Qt::Unchecked);
-
+	if(settings.value("IsForumLogin").isNull())
+		isForumLogin->setCheckState(Qt::Checked);
+	else
+		isForumLogin->setCheckState((settings.value("IsForumLogin").toBool()) ? Qt::Checked : Qt::Unchecked);
+	
+	connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(requestFinish(QNetworkReply*)));
 #ifndef NDEBUG
     qDebug() << "[UENDEBUG] " << "Init login form finished"; 
 #endif
@@ -85,6 +100,35 @@ int LoginForm::exec()
 		return QDialog::exec();
 }
 
+void LoginForm::requestFinish(QNetworkReply* reply)
+{
+	QScriptValue sc;
+	QScriptEngine engine;
+	sc = engine.evaluate("(" + QString(reply->readAll()) + ")");
+	if(sc.property("authenticated").toBool())
+	{
+		((uenclient*)parent())->setApiLogin(login->text());
+		((uenclient*)parent())->setApiPassword(QCryptographicHash::hash(password->text().toUtf8(), QCryptographicHash::Md5).toHex());
+		((uenclient*)parent())->setApiId(sc.property("user").property("userid").toString());
+		((uenclient*)parent())->isSearchOn = true;
+		if(nick->text().isEmpty())
+			((uenclient*)parent())->setJabberNick(sc.property("user").property("username").toString());
+		else
+			((uenclient*)parent())->setJabberNick(nick->text());
+		((uenclient*)parent())->setJabberJID(sc.property("user").property("jabber_user").toString() + "@jabber.uruchie.org");
+		((uenclient*)parent())->setJabberPassword(sc.property("user").property("jabber_password").toString());
+		emit accept();
+		// to fix
+		((uenclient*)parent())->isSession = true;
+		((uenclient*)parent())->show();
+		((uenclient*)parent())->startSession();
+	}
+	else
+	{
+		emit reject();
+	}
+}
+
 int LoginForm::doLogin()
 {
 	QString l = login->text();
@@ -92,21 +136,35 @@ int LoginForm::doLogin()
 	QString n = nick->text();
 	if(l.size() == 0 || p.size() == 0 || n.size() == 0)
 		return QDialog::Rejected; // Пустые поля
-	((uenclient*)parent())->setJabberJID(l + "@jabber.uruchie.org");
-	((uenclient*)parent())->setJabberPassword(p);
-	((uenclient*)parent())->setJabberNick(n);
-	
+		
 	QSettings settings("eNoise", "UeNclient");
 	settings.setValue("LastSessionLogin", l);
 	settings.setValue("LastSessionPassword", p);
 	settings.setValue("LastSessionNick", n);
 	settings.setValue("IsAutoLogin", (isAutoLogin->checkState() == Qt::Checked));
+	settings.setValue("IsForumLogin", (isForumLogin->checkState() == Qt::Checked));
 	settings.sync();
 	
-	//((uenclient*)parent())->startSession();
-	emit accept();
-	//delete this;
-	return QDialog::Accepted;
+	if(isForumLogin->checkState() == Qt::Unchecked)
+	{
+		((uenclient*)parent())->setJabberJID(l + "@jabber.uruchie.org");
+		((uenclient*)parent())->setJabberPassword(p);
+		((uenclient*)parent())->setJabberNick(n);
+	
+		emit accept();
+		return QDialog::Accepted;
+	}
+	else
+	{
+		login->setReadOnly(true);
+		password->setReadOnly(true);
+		nick->setReadOnly(true);
+		QString params = "module=forum&action=login";
+		params += "&username=" + l;
+		params += "&password=" + QCryptographicHash::hash(p.toUtf8(), QCryptographicHash::Md5).toHex();
+		QNetworkRequest request(QUrl("http://uruchie.org/api.php"));
+		manager.post(request,QUrl(params).toEncoded());
+	}
 }
 
 #include "loginform.moc"
