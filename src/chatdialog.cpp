@@ -229,6 +229,8 @@ void ChatDialog::onConnect()
 void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gloox::MUCRoomParticipant participant, const gloox::Presence& presence)
 {
 	Participant part = participant;
+	if(!part.jid)
+		part.jid = new gloox::JID(part.nick->full());
 	part.colorGenerate();
 	part.nickresque = QString().fromUtf8(part.nick->resource().c_str());
 	part.roomjid = QString().fromUtf8(part.nick->full().c_str());
