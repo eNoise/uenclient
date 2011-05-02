@@ -62,7 +62,10 @@ uenclient::uenclient()
     
     LoginForm* login = new LoginForm(this);
     if(login->exec() == QDialog::Accepted)
+    {
+		isSession = true;
 		startSession();
+    }
     else
 		isSession = false;
 }
