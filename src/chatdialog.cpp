@@ -258,21 +258,24 @@ void ChatDialog::handleMUCParticipantPresence(gloox::MUCRoom* thisroom, const gl
 				return;
 		}
 		
-		gloox::VCardUpdate avatarHash(presence.tag()->findChild("x", gloox::XMLNS, gloox::XMLNS_X_VCARD_UPDATE));
-		part.avatarhash = avatarHash.hash().c_str();
-		if(part.avatarhash.length() > 0)
+		if(presence.tag()) // fix posible chash
 		{
-			QFile avatar(QString(CLIENT_DATA_DIR) + "/avatars/" + part.avatarhash);
-			avatar.open(QIODevice::ReadOnly);
-			if(avatar.size() > 0)
-				part.avatar = avatar.readAll();
-			else
+			gloox::VCardUpdate avatarHash(presence.tag()->findChild("x", gloox::XMLNS, gloox::XMLNS_X_VCARD_UPDATE));
+			part.avatarhash = avatarHash.hash().c_str();
+			if(part.avatarhash.length() > 0)
 			{
-				vcardManager->fetchVCard(*part.nick, this);
-				//XEP-0084 Here
-			}
+				QFile avatar(QString(CLIENT_DATA_DIR) + "/avatars/" + part.avatarhash);
+				avatar.open(QIODevice::ReadOnly);
+				if(avatar.size() > 0)
+					part.avatar = avatar.readAll();
+				else
+				{
+					vcardManager->fetchVCard(*part.nick, this);
+					//XEP-0084 Here
+				}
 			
-			avatar.close();
+				avatar.close();
+			}
 		}
 		
 		isChange = true;
