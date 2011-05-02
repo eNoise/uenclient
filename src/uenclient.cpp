@@ -5,6 +5,7 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QAction>
 #include <QToolBar>
+#include <QSettings>
 
 #include "chatdialog.h"
 #include "createtorrentdialog.h"
@@ -14,18 +15,25 @@
 uenclient::uenclient()
 {
     setWindowTitle(tr("UeN Client"));
-    QAction* a = new QAction(this);
-    a->setText( tr("Quit") );
-    a->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/exit.png"));
-    connect(a, SIGNAL(triggered()), SLOT(closeThroughtTray()) );
+    QAction* quit = new QAction(this);
+    quit->setText( tr("Quit") );
+    quit->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/exit.png"));
+    connect(quit, SIGNAL(triggered()), SLOT(closeThroughtTray()) );
     QMenu* fileMenu = menuBar()->addMenu( "File" );
 
-    QAction* b = new QAction(this);
-    b->setText(tr("Create Torrent"));
-    connect(b, SIGNAL(triggered()), SLOT(showTorrentCreateDialog()));
+    //QAction* b = new QAction(this);
+    //b->setText(tr("Create Torrent"));
+    //connect(b, SIGNAL(triggered()), SLOT(showTorrentCreateDialog()));
     
-    fileMenu->addAction( b );
-    fileMenu->addAction( a );
+    //fileMenu->addAction( b );
+    
+    autoLogin = new QAction(this);
+    autoLogin->setCheckable(true);
+    autoLogin->setText(tr("Auto-login"));
+    connect(autoLogin, SIGNAL(toggled(bool)), SLOT(changedAutoLogin(bool)));
+    
+    fileMenu->addAction(autoLogin);
+    fileMenu->addAction( quit );
     
     QToolBar *bottomBar = new QToolBar(tr("Services status"));
     addToolBar(Qt::BottomToolBarArea, bottomBar);
@@ -42,7 +50,7 @@ uenclient::uenclient()
     tray->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/uenicon.png"));
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayAction(QSystemTrayIcon::ActivationReason)));
     QMenu* trayMenu = new QMenu(this);
-    trayMenu->addAction(a);
+    trayMenu->addAction(quit);
     tray->setContextMenu(trayMenu);
     tray->show();
     
@@ -136,6 +144,13 @@ uenclient::~uenclient()
 void uenclient::showTorrentCreateDialog()
 {
       (new CreateTorrentDialog())->setVisible(1);
+}
+
+void uenclient::changedAutoLogin(bool state)
+{
+	QSettings settings("eNoise", "UeNclient");
+	settings.setValue("IsAutoLogin", state);
+	settings.sync();
 }
 
 #include "uenclient.moc"

@@ -29,6 +29,7 @@
 #include <QScriptValue>
 #include <QScriptEngine>
 #include <QCryptographicHash>
+#include <QAction>
 
 
 #ifndef NDEBUG
@@ -82,6 +83,8 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 		isForumLogin->setCheckState((settings.value("IsForumLogin").toBool()) ? Qt::Checked : Qt::Unchecked);
 	
 	connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(requestFinish(QNetworkReply*)));
+	((uenclient*)parent)->autoLogin->setChecked(isAutoLogin->checkState() == Qt::Checked);
+	connect(isAutoLogin, SIGNAL(toggled(bool)), ((uenclient*)parent)->autoLogin, SLOT(setChecked(bool)));
 #ifndef NDEBUG
     qDebug() << "[UENDEBUG] " << "Init login form finished"; 
 #endif
@@ -141,7 +144,7 @@ int LoginForm::doLogin()
 	settings.setValue("LastSessionLogin", l);
 	settings.setValue("LastSessionPassword", p);
 	settings.setValue("LastSessionNick", n);
-	settings.setValue("IsAutoLogin", (isAutoLogin->checkState() == Qt::Checked));
+	//settings.setValue("IsAutoLogin", (isAutoLogin->checkState() == Qt::Checked)); //lock at uenclient->autoLogin
 	settings.setValue("IsForumLogin", (isForumLogin->checkState() == Qt::Checked));
 	settings.sync();
 	

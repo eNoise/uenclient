@@ -34,6 +34,7 @@ public:
     bool isTorrentOn;
     bool isSearchOn;
     bool isSession;
+    QAction* autoLogin;
 protected:
     void closeEvent(QCloseEvent *event);
 private:
@@ -52,6 +53,7 @@ public slots:
     void updateServicesStatus();
     void trayAction(QSystemTrayIcon::ActivationReason reason);
     void closeThroughtTray();
+    void changedAutoLogin(bool state);
 };
 
 #endif // uenclient_H
