@@ -28,18 +28,22 @@ if (NOT MSVC)
 endif (NOT MSVC)
 
 
-option (LOCAL_GLOOX "Use local gloox lib" OFF)
+#option (LOCAL_GLOOX "Use local gloox lib" OFF)
 
 find_package(Qt4 REQUIRED)
 
-if (LOCAL_GLOOX)
-  add_subdirectory(gloox)
-  include_directories ("${PROJECT_SOURCE_DIR}")
-  set (GLOOX_LIBRARIES "gloox")
-else (LOCAL_GLOOX)
-  find_package (Gloox REQUIRED)
-  include_directories(${GLOOX_INCLUDE_DIR})
-endif (LOCAL_GLOOX)
+#if (LOCAL_GLOOX)
+#  add_subdirectory(gloox)
+#  include_directories ("${PROJECT_SOURCE_DIR}")
+#  set (GLOOX_LIBRARIES "gloox")
+#else (LOCAL_GLOOX)
+#  find_package (Gloox REQUIRED)
+#  include_directories(${GLOOX_INCLUDE_DIR})
+#endif (LOCAL_GLOOX)
+
+add_subdirectory(jreen)
+include_directories ("${PROJECT_SOURCE_DIR}")
+set (JREEN_LIBRARIES "jreen")
 
 
 set(UEN_CPP    
@@ -90,7 +94,7 @@ set(UEN_LIBS
 		${QT_QTGUI_LIBRARY}
 		${QT_QTNETWORK_LIBRARY}
 		${QT_QTSCRIPT_LIBRARY}
-		${GLOOX_LIBRARIES}
+		${JREEN_LIBRARIES}
 )
 
 #gloox fix

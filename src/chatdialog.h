@@ -26,18 +26,19 @@
 #include <QTextBrowser>
 #include <QHBoxLayout>
 
-#include <gloox/client.h>
-#include <gloox/connectionlistener.h>
-#include <gloox/messagehandler.h>
-#include <gloox/mucroom.h>
-#include <gloox/mucroomhandler.h>
-#include <gloox/message.h>
-#include <gloox/presence.h>
-#include <gloox/loghandler.h>
-#include <gloox/vcard.h>
-#include <gloox/vcardmanager.h>
-#include <gloox/vcardhandler.h>
-
+// #include <gloox/client.h>
+// #include <gloox/connectionlistener.h>
+// #include <gloox/messagehandler.h>
+// #include <gloox/mucroom.h>
+// #include <gloox/mucroomhandler.h>
+// #include <gloox/message.h>
+// #include <gloox/presence.h>
+// #include <gloox/loghandler.h>
+// #include <gloox/vcard.h>
+// #include <gloox/vcardmanager.h>
+// #include <gloox/vcardhandler.h>
+#include <jreen/client.h>
+#include <jreen/co>
 
 #include <vector>
 #include "uenclient.h"
