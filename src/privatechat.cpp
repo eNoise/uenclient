@@ -18,24 +18,25 @@
 
 
 #include "privatechat.h"
+#include "chatdialog.h"
 #include <QVBoxLayout>
 #include <gloox/message.h>
 #include "helper.h"
 #include <time.h>
 
-PrivateChat::PrivateChat(gloox::Client* c, gloox::JID jid, QString startMsg) : gloox::MessageSession(c, jid)
+PrivateChat::PrivateChat(ChatDialog* parent, gloox::Client* c, gloox::JID jid, QString startMsg) : gloox::MessageSession(c, jid), QWidget(parent)
 {
 	createChatBox();
 	if(startMsg != "")
 		emit addToMessageBox(startMsg, QString().fromUtf8(target().full().c_str()));
 }
 
-PrivateChat::PrivateChat(gloox::MessageSession* session): gloox::MessageSession(*session)
+PrivateChat::PrivateChat(ChatDialog* parent, gloox::MessageSession* session): gloox::MessageSession(*session), QWidget(parent)
 {
 	createChatBox();
 }
 
-PrivateChat::PrivateChat(gloox::MessageSession* session, QString startMsg): gloox::MessageSession(*session)
+PrivateChat::PrivateChat(ChatDialog* parent, gloox::MessageSession* session, QString startMsg): gloox::MessageSession(*session), QWidget(parent)
 {
 	createChatBox();
 	emit addToMessageBox(startMsg, QString().fromUtf8(target().full().c_str()));
@@ -52,6 +53,7 @@ void PrivateChat::createChatBox()
 	setLayout(main);
 	
 	connect(this, SIGNAL(reciveMessage(QString,QString)), SLOT(addToMessageBox(QString,QString)));
+	connect(this, SIGNAL(reciveNotPrivateMessage(QString,QString,QString)), ((ChatDialog*)parent()), SLOT(addToMessageBox(QString,QString,QString)));
 	connect(inputLine, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
 	
 	registerMessageHandler(this);
@@ -65,8 +67,10 @@ PrivateChat::~PrivateChat()
 
 void PrivateChat::handleMessage(const gloox::Message& msg, gloox::MessageSession* session)
 {
-	emit reciveMessage(QString().fromUtf8(msg.body().c_str()), QString().fromUtf8((msg.from().full().c_str())));
-	//chatBox->append();
+	if(msg.subtype() == gloox::Message::Chat)
+		emit reciveMessage(QString().fromUtf8(msg.body().c_str()), QString().fromUtf8((msg.from().full().c_str())));
+	else
+		emit reciveNotPrivateMessage(QString().fromUtf8(msg.body().c_str()), QString().fromUtf8((msg.from().full().c_str())), QString().fromUtf8((msg.from().resource().c_str())));
 }
 
 void PrivateChat::addToMessageBox(QString msg, const QString& from)

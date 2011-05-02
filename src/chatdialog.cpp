@@ -376,9 +376,9 @@ void ChatDialog::beginPrivate(QString jid, QString nick, QString defaultMsg)
 	{
 		PrivateChat* priv;
 		if(defaultMsg != "")
-			priv = new PrivateChat(client, gloox::JID(jid.toUtf8().data()), defaultMsg);
+			priv = new PrivateChat(this, client, gloox::JID(jid.toUtf8().data()), defaultMsg);
 		else
-			priv = new PrivateChat(client, gloox::JID(jid.toUtf8().data()));
+			priv = new PrivateChat(this, client, gloox::JID(jid.toUtf8().data()));
 		mainWindow->tabWidget->addTab(priv, nick);
 		chats[jid] = priv;
 	}
@@ -394,9 +394,9 @@ void ChatDialog::beginPrivate(gloox::MessageSession* session, QString defaultMsg
 	{
 		PrivateChat* priv;
 		if(defaultMsg != "")
-			priv = new PrivateChat(session, defaultMsg);
+			priv = new PrivateChat(this, session, defaultMsg);
 		else
-			priv = new PrivateChat(session);
+			priv = new PrivateChat(this, session);
 		mainWindow->tabWidget->addTab(priv, jid);
 		chats[jid] = priv;
 	}

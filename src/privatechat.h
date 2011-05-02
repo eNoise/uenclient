@@ -28,14 +28,15 @@
 #include <gloox/client.h>
 #include <gloox/jid.h>
 
+class ChatDialog;
 
 class PrivateChat : public QWidget, public gloox::MessageHandler, public gloox::MessageSession
 {
 Q_OBJECT
 public:
-    PrivateChat(gloox::Client* c, gloox::JID jid, QString startMsg = "");
-    PrivateChat(gloox::MessageSession* session);
-    PrivateChat(gloox::MessageSession* session, QString startMsg);
+    PrivateChat(ChatDialog* parent, gloox::Client* c, gloox::JID jid, QString startMsg = "");
+    PrivateChat(ChatDialog* parent, gloox::MessageSession* session);
+    PrivateChat(ChatDialog* parent, gloox::MessageSession* session, QString startMsg);
     virtual ~PrivateChat();
 private:
     void createChatBox();
@@ -44,6 +45,7 @@ private:
     void handleMessage( const gloox::Message& msg, gloox::MessageSession* session);
 signals:
     void reciveMessage(QString msg, const QString& from);
+    void reciveNotPrivateMessage(QString msg, const QString& from, const QString& nick);
 public slots:
     void sendMessage();
     void addToMessageBox(QString msg, const QString& from);
