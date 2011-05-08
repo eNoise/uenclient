@@ -49,6 +49,7 @@ set(UEN_CPP
 	      src/glooxsession.cpp
 	      src/chatdialog.cpp
 	      src/chatuseritem.cpp
+	      src/smilehandler.cpp
 	      src/privatechat.cpp
 	      src/createtorrentdialog.cpp
 	      src/helper.cpp
@@ -89,6 +90,7 @@ set(UEN_LIBS
 		${QT_QTCORE_LIBRARY} 
 		${QT_QTGUI_LIBRARY}
 		${QT_QTNETWORK_LIBRARY}
+		${QT_QTXML_LIBRARY}
 		${QT_QTSCRIPT_LIBRARY}
 		${GLOOX_LIBRARIES}
 )

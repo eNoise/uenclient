@@ -35,7 +35,6 @@
 #include "chatuseritem.h"
 #include "gloox/vcardupdate.h"
 
-
 #include <algorithm>
 
 ChatDialog::ChatDialog(uenclient* main, QString login, QString password, QString nick): mainWindow(main)
