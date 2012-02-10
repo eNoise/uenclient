@@ -37,7 +37,9 @@ ChatUserItem::~ChatUserItem()
 
 QSize ChatUserItem::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    return 3.1 * QStyledItemDelegate::sizeHint(option, index);
+    QSize size = QStyledItemDelegate::sizeHint(option, index);
+    size.setHeight(54);
+    return size;
 }
 
 
@@ -65,7 +67,7 @@ void ChatUserItem::paint(QPainter* painter, const QStyleOptionViewItem& option, 
     else
 	avatar.addFile(QString(CLIENT_DATA_DIR) + "/icons/default_avatar.png");
     //qDebug() << avatar.actualSize(option.decorationSize);
-    painter->drawPixmap(QPoint(2,rect.top()),avatar.pixmap(50,50));
+    painter->drawPixmap(QPoint(2, rect.top() + 2),avatar.pixmap(50,50));
     
     pen.setColor(QColor("#" + color));
     painter->setPen(pen);
