@@ -12,8 +12,8 @@
 
 
 
-#ifndef TLSGNUTLSCLIENT_H__
-#define TLSGNUTLSCLIENT_H__
+#ifndef TLSGNUTLSSERVER_H__
+#define TLSGNUTLSSERVER_H__
 
 #include "tlsgnutlsbase.h"
 
@@ -23,33 +23,31 @@
 
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
-#include <gcrypt.h>
 
 namespace gloox
 {
 
   /**
-   * @brief This class implements a TLS backend using GnuTLS.
+   * @brief This class implements (stream) encryption using GnuTLS server-side.
    *
    * You should not need to use this class directly.
    *
    * @author Jakob Schroeter <js@camaya.net>
-   * @since 0.9
+   * @since 1.0
    */
-  class GnuTLSClient : public GnuTLSBase
+  class GnuTLSServer : public GnuTLSBase
   {
     public:
       /**
        * Constructor.
        * @param th The TLSHandler to handle TLS-related events.
-       * @param server The server to use in certificate verification.
        */
-      GnuTLSClient( TLSHandler* th, const std::string& server );
+      GnuTLSServer( TLSHandler* th );
 
       /**
        * Virtual destructor.
        */
-      virtual ~GnuTLSClient();
+      virtual ~GnuTLSServer();
 
       // reimplemented from TLSBase
       virtual bool init( const std::string& clientKey = EmptyString,
@@ -57,21 +55,24 @@ namespace gloox
                          const StringList& cacerts = StringList() );
 
       // reimplemented from TLSBase
-      virtual void setCACerts( const StringList& cacerts );
-
-      // reimplemented from TLSBase
-      virtual void setClientCert( const std::string& clientKey, const std::string& clientCerts );
-
-      // reimplemented from TLSBase
       virtual void cleanup();
 
     private:
+      // reimplemented from TLSBase
+      virtual void setCACerts( const StringList& cacerts );
+
+      // reimplemented from TLSBase
+      virtual void setClientCert( const std::string& clientKey,
+                                  const std::string& clientCerts );
+
       virtual void getCertInfo();
+      void generateDH();
 
-      bool verifyAgainst( gnutls_x509_crt_t cert, gnutls_x509_crt_t issuer );
-      bool verifyAgainstCAs( gnutls_x509_crt_t cert, gnutls_x509_crt_t *CAList, int CAListSize );
-
-      gnutls_certificate_credentials m_credentials;
+      gnutls_certificate_credentials_t m_x509cred;
+//       gnutls_priority_t m_priorityCache;
+      gnutls_dh_params_t m_dhParams;
+      gnutls_rsa_params_t m_rsaParams;
+      const int m_dhBits;
 
   };
 
@@ -79,4 +80,4 @@ namespace gloox
 
 #endif // HAVE_GNUTLS
 
-#endif // TLSGNUTLSCLIENT_H__
+#endif // TLSGNUTLSSERVER_H__

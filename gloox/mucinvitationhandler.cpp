@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2009 by Jakob Schroeter <js@camaya.net>
+  Copyright (c) 2006-2009 by Jakob Schroeter <js@camaya.net>
   This file is part of the gloox library. http://camaya.net/gloox
 
   This software is distributed under a license. The full license
@@ -10,4 +10,18 @@
   This software is distributed without any warranty.
 */
 
-#define GLOOXVERSION 0x010001
+
+
+#include "mucinvitationhandler.h"
+#include "mucroom.h"
+
+namespace gloox
+{
+
+  MUCInvitationHandler::MUCInvitationHandler( ClientBase* parent )
+  {
+    if( parent )
+      parent->registerStanzaExtension( new MUCRoom::MUCUser() );
+  }
+
+}

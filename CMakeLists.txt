@@ -28,7 +28,7 @@ if (NOT MSVC)
 endif (NOT MSVC)
 
 
-option (LOCAL_GLOOX "Use local gloox lib" OFF)
+option (LOCAL_GLOOX "Use local gloox lib" ON)
 
 find_package(Qt4 REQUIRED)
 
