@@ -94,10 +94,8 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
     qDebug() << "[UENDEBUG] " << "Start gloox session"; 
 #endif
 	client = new gloox::Client(gloox::JID((login + "/UeNClient").toUtf8().data()), password.toUtf8().data());
-	//client->disco()->setVersion("UeN Client", "0.1.0");
-#ifdef WIN32	
-	client->setTls(gloox::TLSDisabled);
-#endif
+	client->disco()->setVersion("uenclient", "0.1.0");
+	client->disco()->setIdentity("client", "pc", "uenclient");
 	client->registerConnectionListener( this );
 	client->registerMessageHandler( this );
 	client->registerStanzaExtension(new gloox::VCardUpdate());
