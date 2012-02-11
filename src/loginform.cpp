@@ -107,7 +107,11 @@ void LoginForm::requestFinish(QNetworkReply* reply)
 {
 	QScriptValue sc;
 	QScriptEngine engine;
-	sc = engine.evaluate("(" + QString(reply->readAll()) + ")");
+	QString json = QString(reply->readAll());
+#ifndef NDEBUG
+	qDebug() << "[UENDEBUG] " << "Returned JSON: " << json; 
+#endif
+	sc = engine.evaluate("(" + json + ")");
 	if(sc.property("authenticated").toBool())
 	{
 		((uenclient*)parent())->setApiLogin(login->text());
@@ -166,6 +170,7 @@ int LoginForm::doLogin()
 		params += "&username=" + l;
 		params += "&password=" + QCryptographicHash::hash(p.toUtf8(), QCryptographicHash::Md5).toHex();
 		QNetworkRequest request(QUrl("http://uruchie.org/api.php"));
+		request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 		manager.post(request,QUrl(params).toEncoded());
 	}
 }
