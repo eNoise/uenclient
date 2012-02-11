@@ -1,14 +1,36 @@
+# Default Setting
 cmake_minimum_required(VERSION 2.6)
-
 project(uenclient)
 set (PROJECT_NAME_GLOBAL uenclient)
 set (VERSION "0.1.0")
-
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include (CheckIncludeFile)
 
+
+# Git Revision
+execute_process(COMMAND ${PROJECT_SOURCE_DIR}/getrevision.sh
+		OUTPUT_VARIABLE GIT_REVISION 
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+execute_process(COMMAND git describe
+		OUTPUT_VARIABLE GIT_DESCRIBE 
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+add_definitions(-DGIT_REVISION="${GIT_REVISION}")
+add_definitions(-DGIT_DESCRIBE="${GIT_DESCRIBE}")
+add_definitions(-DGIT_VERSION="${VERSION}")
+
+
 #Compiling flags
 if (NOT MSVC)
+    #enable c++0X
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+
+    #enable win32 defs
+    if (WIN32)
+      add_definitions(-DWIN32 -D_WIN32)
+    endif (WIN32)
+
     if (CMAKE_CROSSCOMPILING)
 	if(WIN32)
 		if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -18,20 +40,15 @@ if (NOT MSVC)
 		endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	endif(WIN32)
     endif (CMAKE_CROSSCOMPILING)
-    #if (NOT APPLE)
-    #    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--as-needed")
-    #    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--as-needed")
-    #endif (NOT APPLE)
-    #set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -pipe -DNDEBUG")
-    #set (CMAKE_CXX_FLAGS_RELEASE     "${CMAKE_CXX_FLAGS_RELEASE} -DQT_NO_DEBUG -pipe")
-    #set (CMAKE_CXX_FLAGS_DEBUG       "${CMAKE_CXX_FLAGS_DEBUG} -UNDEBUG -g3 -pipe")
 endif (NOT MSVC)
 
 
+# Settings
 option (LOCAL_GLOOX "Use local gloox lib" ON)
 
-find_package(Qt4 REQUIRED)
 
+#Find Packages
+find_package(Qt4 REQUIRED)
 if (LOCAL_GLOOX)
   add_subdirectory(gloox)
   include_directories ("${PROJECT_SOURCE_DIR}")
@@ -73,16 +90,15 @@ set(UEN_CPP
 qt4_automoc(${UEN_CPP})
 qt4_wrap_ui(UEN_UI forms/addtorrentform.ui)
 
-#translations
+
+# Translations
 file (GLOB UEN_TRANS translations/*.ts)
 option (UPDATE_TRANSLATIONS "Update source translation translations/*.ts files (WARNING: make clean will delete the source .ts files! Danger!)")
-
 if (UPDATE_TRANSLATIONS)
   qt4_create_translation(UEN_QM ${UEN_CPP} ${UEN_TRANS})
 else (UPDATE_TRANSLATIONS)
   qt4_add_translation(UEN_QM ${UEN_TRANS})
 endif (UPDATE_TRANSLATIONS) 
-
 #add_custom_target (uenclient DEPENDS ${UEN_QM})
 
 
@@ -94,8 +110,7 @@ set(UEN_LIBS
 		${QT_QTSCRIPT_LIBRARY}
 		${GLOOX_LIBRARIES}
 )
-
-#gloox fix
+# Some win32 libs
 if(WIN32)
         set(UEN_LIBS ${UEN_LIBS} 
                       dnsapi
@@ -106,7 +121,7 @@ if(WIN32)
 endif(WIN32)
 
 
-#icon
+# Add windows icon to exe file
 if(MINGW AND WIN32)
   ADD_CUSTOM_COMMAND (OUTPUT
             "${CMAKE_CURRENT_BINARY_DIR}/uenclient_rc.o"
@@ -118,14 +133,20 @@ if(MINGW AND WIN32)
   set(UEN_CPP ${UEN_CPP} "${CMAKE_CURRENT_BINARY_DIR}/uenclient_rc.o")
 endif(MINGW AND WIN32)
 
+
+# Include Directory
 include_directories(
 		    ${QT_INCLUDES} 
 		    ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+
+# Compilation
 add_executable(uenclient ${UEN_CPP} ${UEN_UI} ${UEN_QM})
 target_link_libraries(uenclient ${UEN_LIBS})
 
-#Install
+
+# Directory setup
 if(WIN32)
   set (BIN_DIR .)
 else(WIN32)
@@ -145,14 +166,10 @@ else (APPLE)
 endif (APPLE)
 add_definitions(-DCLIENT_DATA_DIR="${CLIENT_DATA_DIR}")
 
+
+# Instalation
 install (TARGETS uenclient DESTINATION ${BIN_DIR})
-#if(WIN32)
-#  install (FILES pichi.xml DESTINATION ${CLIENT_DATA_DIR})
-#else(WIN32)
-#  install (FILES pichi.xml DESTINATION "${CLIENT_DATA_DIR}/config")
-#endif(WIN32)
 install (DIRECTORY share/avatars/ DESTINATION "${CLIENT_DATA_DIR}/avatars")
 install (DIRECTORY share/smiles/ DESTINATION "${CLIENT_DATA_DIR}/smiles")
 install (DIRECTORY share/icons/ DESTINATION "${CLIENT_DATA_DIR}/icons")
-
 install(FILES ${UEN_QM} DESTINATION "${CLIENT_DATA_DIR}/translations")
