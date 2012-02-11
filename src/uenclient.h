@@ -54,6 +54,8 @@ public slots:
     void trayAction(QSystemTrayIcon::ActivationReason reason);
     void closeThroughtTray();
     void changedAutoLogin(bool state);
+private slots:
+    void about();
 };
 
 #endif // uenclient_H

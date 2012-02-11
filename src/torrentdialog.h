@@ -70,7 +70,6 @@ private slots:
     void setUploadLimit(int bytes);
     void setDownloadLimit(int bytes);
 
-    void about();
     void setActionsEnabled();
     void acceptFileDrop(const QString &fileName);
     

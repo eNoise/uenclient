@@ -14,7 +14,7 @@
 
 uenclient::uenclient()
 {
-    setWindowTitle(tr("UeN Client"));
+    setWindowTitle(tr("Uruchie eNoise Client"));
     QAction* quit = new QAction(this);
     quit->setText( tr("Quit") );
     quit->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/exit.png"));
@@ -110,6 +110,54 @@ void uenclient::trayAction(QSystemTrayIcon::ActivationReason reason)
 	}
 }
 
+void uenclient::about()
+{
+    QLabel *icon = new QLabel;
+    icon->setPixmap(QPixmap(QString(CLIENT_DATA_DIR) + "/icons/uenlogo_350.png"));
+    
+    QLabel *text = new QLabel;
+    text->setWordWrap(true);
+    text->setText(
+		tr("UeNClient Version: ")
+		+ QString(GIT_VERSION) + " (" + QString(GIT_DESCRIBE) + ") " + " [r" + GIT_REVISION + "]"  
+		+ "\n\n"
+		+ tr("Developers:\n")
+		+ tr(" Alexey DEg Kasyanchuk - main developer (first alpha and later)\n")
+		+ tr(" Sergey Happ Svirsky - maintainer and developer (first alpha and later)\n")
+		+ tr(" Egor Nagg Bogatov - maintainer and support (first alpha and later)\n")
+		+ tr(" Un1c0rn - ideological leader and support (first alpha and later)\n")
+		+ tr(" Leto - designer (first alpha and later)\n")
+		+ tr(" Rabbid - tester (first alpha and later)\n")
+		+ tr(" Jelu - tester (first alpha and later)\n")
+    );
+
+    QPushButton *quitButton = new QPushButton("OK");
+
+    QHBoxLayout *topLayout = new QHBoxLayout;
+    topLayout->setMargin(15);
+    topLayout->setSpacing(15);
+    topLayout->addWidget(icon);
+    topLayout->addWidget(text);
+    topLayout->setAlignment(text,Qt::AlignTop);
+
+    QHBoxLayout *bottomLayout = new QHBoxLayout;
+    bottomLayout->addStretch();
+    bottomLayout->addWidget(quitButton);
+    bottomLayout->addStretch();
+
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(topLayout);
+    mainLayout->addLayout(bottomLayout);
+
+    QDialog about(this);
+    about.setModal(true);
+    about.setWindowTitle(tr("About Uruchie eNoise Client"));
+    about.setLayout(mainLayout);
+
+    connect(quitButton, SIGNAL(clicked()), &about, SLOT(close()));
+
+    about.exec();
+}
 
 void uenclient::startSession()
 {
@@ -127,6 +175,12 @@ void uenclient::startSession()
 	      tabWidget->setTabsClosable(true);
 	      connect(tabWidget, SIGNAL(tabCloseRequested(int)), chat, SLOT(onTabClose(int)));
 	      setCentralWidget(tabWidget);
+	      
+	      // add about menu
+	      // Help menu
+	      QMenu *helpMenu = this->menuBar()->addMenu(tr("&Help"));
+	      helpMenu->addAction(tr("&About"), this, SLOT(about()));
+	      //helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
     }
 }
 

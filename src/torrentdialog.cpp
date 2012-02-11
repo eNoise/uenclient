@@ -129,11 +129,6 @@ TorrentDialog::TorrentDialog(QWidget *parent)
     //fileMenu->addSeparator();
     //fileMenu->addAction(QIcon(QString(CLIENT_DATA_DIR) + "/icons/exit.png"), tr("E&xit"), this, SLOT(close()));
 
-    // Help menu
-    QMenu *helpMenu = ((QMainWindow*)parent)->menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(tr("&About"), this, SLOT(about()));
-    helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
-
     // Top toolbar
     QToolBar *topBar = new QToolBar(tr("Tools"));
     ((QMainWindow*)parent)->addToolBar(Qt::TopToolBarArea, topBar);
@@ -716,53 +711,6 @@ void TorrentDialog::setDownloadLimit(int value)
         saveChanges = true;
         QTimer::singleShot(5000, this, SLOT(saveSettings()));
     }
-}
-
-void TorrentDialog::about()
-{
-    QLabel *icon = new QLabel;
-    icon->setPixmap(QPixmap(QString(CLIENT_DATA_DIR) + "/icons/uenlogo_350.png"));
-    
-    QLabel *text = new QLabel;
-    text->setWordWrap(true);
-    text->setText(
-		tr("UeNClient Version: prealpha\n\n") 
-		+ tr("Developers:\n")
-		+ tr(" Alexey DEg Kasyanchuk - main developer (first alpha and later)\n")
-		+ tr(" Sergey Happ Svirsky - maintainer and developer (first alpha and later)\n")
-		+ tr(" Egor Nagg Bogatov - maintainer and support (first alpha and later)\n")
-		+ tr(" Un1c0rn - ideological leader and support (first alpha and later)\n")
-		+ tr(" Leto - designer (first alpha and later)\n")
-		+ tr(" Rabbid - tester (first alpha and later)\n")
-		+ tr(" Jelu - tester (first alpha and later)\n")
-    );
-
-    QPushButton *quitButton = new QPushButton("OK");
-
-    QHBoxLayout *topLayout = new QHBoxLayout;
-    topLayout->setMargin(15);
-    topLayout->setSpacing(15);
-    topLayout->addWidget(icon);
-    topLayout->addWidget(text);
-    topLayout->setAlignment(text,Qt::AlignTop);
-
-    QHBoxLayout *bottomLayout = new QHBoxLayout;
-    bottomLayout->addStretch();
-    bottomLayout->addWidget(quitButton);
-    bottomLayout->addStretch();
-
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(topLayout);
-    mainLayout->addLayout(bottomLayout);
-
-    QDialog about(this);
-    about.setModal(true);
-    about.setWindowTitle(tr("About UeNClient"));
-    about.setLayout(mainLayout);
-
-    connect(quitButton, SIGNAL(clicked()), &about, SLOT(close()));
-
-    about.exec();
 }
 
 void TorrentDialog::acceptFileDrop(const QString &fileName)
