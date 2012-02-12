@@ -106,7 +106,7 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
 #ifndef NDEBUG
     qDebug() << "[UENDEBUG] " << "Gloox configure finished"; 
 #endif
-	GlooxSession* gloox = new GlooxSession(client);
+	GlooxSession* gloox = new GlooxSession(this);
 	gloox->start();
 }
 
@@ -208,7 +208,6 @@ void ChatDialog::handleMessage(const gloox::Message& msg, gloox::MessageSession*
 void ChatDialog::handleMUCMessage(gloox::MUCRoom* thisroom, const gloox::Message& msg, bool priv)
 {
 	emit reciveMessage(QString().fromUtf8(msg.body().c_str()), QString().fromUtf8((msg.from().full().c_str())), QString().fromUtf8((msg.from().resource().c_str())));
-	//chatBox->append();
 }
 
 void ChatDialog::onConnect()

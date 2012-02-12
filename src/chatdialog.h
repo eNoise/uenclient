@@ -43,6 +43,7 @@
 #include "uenclient.h"
 #include "privatechat.h"
 
+class GlooxSession;
 
 class ChatDialog : public QWidget, public gloox::ConnectionListener, public gloox::MUCRoomHandler, 
 		   public gloox::MessageHandler, public gloox::LogHandler, public gloox::VCardHandler
@@ -52,6 +53,7 @@ public:
     ChatDialog(QString login, QString password, QString nick);
     ChatDialog(uenclient* main, QString login, QString password, QString nick);
     virtual ~ChatDialog();
+    friend class GlooxSession;
         
     struct Participant : public gloox::MUCRoomParticipant
     {

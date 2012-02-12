@@ -48,6 +48,7 @@ public slots:
 	int doLogin();
 	int exec();
 	void requestFinish(QNetworkReply* reply);
+	void loginLock();
 signals:
 	void closeSignal();
 };

@@ -18,6 +18,9 @@
 
 
 #include "glooxsession.h"
+#include "chatdialog.h"
+#include "uenclient.h"
+#include "loginform.h"
 
 #ifndef NDEBUG
 #include <QDebug>
@@ -35,8 +38,9 @@ void GlooxSession::run()
     // Restarting session
     if(!client->authed()) {
 #ifndef NDEBUG
-    qDebug() << "[UENDEBUG] " << "Restarting LoginForm"; 
+		qDebug() << "[UENDEBUG] " << "Restarting LoginForm"; 
 #endif
+		emit requestLoginForm();
     }
 }
 
@@ -45,8 +49,15 @@ GlooxSession::GlooxSession(gloox::Client* client) : client(client)
 
 }
 
+GlooxSession::GlooxSession(ChatDialog* parent): client(parent->client),
+						parent(parent)
+{
+	connect(this, SIGNAL(requestLoginForm()), ((uenclient*)parent->mainWindow)->loginForm, SLOT(loginLock()));
+}
+
 GlooxSession::~GlooxSession()
 {
 
 }
 
+#include "glooxsession.moc"

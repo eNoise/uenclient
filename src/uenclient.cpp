@@ -191,7 +191,10 @@ void uenclient::startSession()
 	      QMenu *helpMenu = this->menuBar()->addMenu(tr("&Help"));
 	      helpMenu->addAction(tr("&About"), this, SLOT(about()));
 	      //helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
-    }
+    } else { // Try to restart chat session
+	      delete (ChatDialog*)(((QTabWidget*)centralWidget())->widget(0));
+	      ((QTabWidget*)centralWidget())->insertTab(0, new ChatDialog(this, jabberJID, jabberPassword, jabberNick), tr("Chat"));
+    } 
 }
 
 void uenclient::updateServicesStatus()

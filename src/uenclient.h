@@ -7,6 +7,7 @@
 #include <QSystemTrayIcon>
 
 class LoginForm;
+class GlooxSession;
 
 class uenclient : public QMainWindow
 {
@@ -53,6 +54,7 @@ private:
     QSystemTrayIcon* tray;
     
     LoginForm* loginForm;
+    friend class GlooxSession;
 public slots:
     void showTorrentCreateDialog();
     void updateServicesStatus();

@@ -21,18 +21,24 @@
 #define GLOOXSESSION_H
 
 #include <QThread>
+#include <QWidget>
 #include <gloox/client.h>
 
+class ChatDialog;
 
 class GlooxSession : public QThread
 {
-
+Q_OBJECT
 protected:
     void run();
     gloox::Client* client;
+    QWidget* parent;
 public:
     GlooxSession(gloox::Client* client);
+    GlooxSession(ChatDialog* parent);
     virtual ~GlooxSession();
+signals:
+    void requestLoginForm();
 };
 
 #endif // GLOOXSESSION_H

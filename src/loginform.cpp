@@ -146,6 +146,17 @@ void LoginForm::requestFinish(QNetworkReply* reply)
 	}
 }
 
+/**
+ * Starts when login was wrong
+ */
+void LoginForm::loginLock()
+{
+	emit show();
+	((uenclient*)parent())->hide();
+	loginStatus->setText("<font color=\"red\">" + tr("Wrong login or password.") + "</font>");
+	startLogin->setEnabled(true);
+}
+
 int LoginForm::doLogin()
 {
 	startLogin->setEnabled(false);
