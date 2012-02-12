@@ -80,9 +80,9 @@ public:
 		affiliation(pr.affiliation),
 		alternate(pr.alternate),
 		flags(pr.flags),
-		jid(pr.jid),
+		jid(pr.jid->clone()),
 		newNick(pr.newNick),
-		nick(pr.nick),
+		nick(pr.nick->clone()),
 		reason(pr.reason),
 		role(pr.role),
 		status(pr.status)

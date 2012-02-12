@@ -42,6 +42,15 @@ namespace gloox
        */
       JID( const std::string& jid ) : m_valid( true ) { setJID( jid ); }
 
+      JID( const JID& jid ) : m_resource(jid.m_resource),
+			      m_username(jid.m_username),
+			      m_server(jid.m_server),
+			      m_serverRaw(jid.m_serverRaw),
+			      m_bare(jid.m_bare),
+			      m_full(jid.m_full),
+			      m_valid(jid.m_valid)
+      {}
+      
       /**
        * Destructor.
        */
@@ -158,6 +167,12 @@ namespace gloox
        */
       static std::string unescapeNode( const std::string& node );
 
+      
+      virtual JID* clone() const
+      {
+		return new JID( *this );
+      }
+      
     private:
       /**
        * Utility function to rebuild both the bare and full jid.
