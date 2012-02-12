@@ -42,6 +42,7 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	password = new QLineEdit;
 	password->setEchoMode(QLineEdit::Password);
 	nick = new QLineEdit;
+	loginStatus = new QLabel;
 	startLogin = new QPushButton(tr("Login"));
 	isAutoLogin = new QCheckBox(tr("Auto-login ?"));
 	isForumLogin = new QCheckBox(tr("UAPI login ?"));
@@ -65,6 +66,7 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	main->addLayout(passwordLine);
 	main->addLayout(nickLine);
 	main->addLayout(checkLink);
+	main->addWidget(loginStatus);
 	main->addWidget(startLogin);
 	
 	setLayout(main);
@@ -82,6 +84,7 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	else
 		isForumLogin->setCheckState((settings.value("IsForumLogin").toBool()) ? Qt::Checked : Qt::Unchecked);
 	
+	connect(this, SIGNAL(closeSignal()), (uenclient*)parent, SLOT(closeThroughtTray()));
 	connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(requestFinish(QNetworkReply*)));
 	((uenclient*)parent)->autoLogin->setChecked(isAutoLogin->checkState() == Qt::Checked);
 	connect(isAutoLogin, SIGNAL(toggled(bool)), ((uenclient*)parent)->autoLogin, SLOT(setChecked(bool)));
@@ -93,6 +96,11 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 LoginForm::~LoginForm()
 {
 
+}
+
+void LoginForm::closeEvent(QCloseEvent* event) 
+{
+	emit closeSignal();
 }
 
 int LoginForm::exec()
@@ -124,20 +132,23 @@ void LoginForm::requestFinish(QNetworkReply* reply)
 			((uenclient*)parent())->setJabberNick(nick->text());
 		((uenclient*)parent())->setJabberJID(sc.property("user").property("jabber_user").toString() + "@jabber.uruchie.org");
 		((uenclient*)parent())->setJabberPassword(sc.property("user").property("jabber_password").toString());
-		emit accept();
-		// to fix
-		((uenclient*)parent())->isSession = true;
-		((uenclient*)parent())->show();
-		((uenclient*)parent())->startSession();
+		// Login manualy
+		emit hide();
+		((uenclient*)parent())->confirmedLogin();
 	}
 	else
 	{
-		emit reject();
+#ifndef NDEBUG
+	qDebug() << "[UENDEBUG] " << "UAPI login failed"; 
+#endif
+		loginStatus->setText("<font color=\"red\">" + tr("Wrong login or password.") + "</font>");
+		startLogin->setEnabled(true);
 	}
 }
 
 int LoginForm::doLogin()
 {
+	startLogin->setEnabled(false);
 	QString l = login->text();
 	QString p = password->text();
 	QString n = nick->text();
@@ -148,7 +159,6 @@ int LoginForm::doLogin()
 	settings.setValue("LastSessionLogin", l);
 	settings.setValue("LastSessionPassword", p);
 	settings.setValue("LastSessionNick", n);
-	//settings.setValue("IsAutoLogin", (isAutoLogin->checkState() == Qt::Checked)); //lock at uenclient->autoLogin
 	settings.setValue("IsForumLogin", (isForumLogin->checkState() == Qt::Checked));
 	settings.sync();
 	
@@ -157,15 +167,15 @@ int LoginForm::doLogin()
 		((uenclient*)parent())->setJabberJID(l + "@jabber.uruchie.org");
 		((uenclient*)parent())->setJabberPassword(p);
 		((uenclient*)parent())->setJabberNick(n);
-	
-		emit accept();
+		hide();
+		((uenclient*)parent())->confirmedLogin();
 		return QDialog::Accepted;
 	}
 	else
 	{
-		login->setReadOnly(true);
-		password->setReadOnly(true);
-		nick->setReadOnly(true);
+		//login->setReadOnly(true);
+		//password->setReadOnly(true);
+		//nick->setReadOnly(true);
 		QString params = "module=forum&action=login";
 		params += "&username=" + l;
 		params += "&password=" + QCryptographicHash::hash(p.toUtf8(), QCryptographicHash::Md5).toHex();

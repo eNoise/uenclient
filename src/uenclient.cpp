@@ -58,24 +58,34 @@ uenclient::uenclient()
     qDebug() << "[UENDEBUG] " << "Init main window finished"; 
 #endif
     
+    // Session setting
     isSessionStarted = false;
+    canStartSession = false;
     
-    LoginForm* login = new LoginForm(this);
-    if(login->exec() == QDialog::Accepted)
-    {
-		isSession = true;
-		startSession();
-    }
-    else
-		isSession = false;
+    loginForm = new LoginForm(this);
+    loginForm->show();
+}
+
+void uenclient::confirmedLogin()
+{
+	canStartSession = true;
+	show();
+	startSession();
+}
+
+void uenclient::showLoginForm()
+{
+    if(loginForm == NULL)
+	return;
+    loginForm->show();
 }
 
 void uenclient::show()
 {
-	if(isSession)
+	if(canStartSession)
 		QMainWindow::show();
 	else
-		close(); // broken session
+		close(); // Temporary close session
 }
 
 void uenclient::closeEvent(QCloseEvent* event)

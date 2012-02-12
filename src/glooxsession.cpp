@@ -29,6 +29,15 @@ void GlooxSession::run()
     qDebug() << "[UENDEBUG] " << "Gloox thread started"; 
 #endif
 	client->connect();
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Gloox authed: " << client->authed(); 
+#endif
+    // Restarting session
+    if(!client->authed()) {
+#ifndef NDEBUG
+    qDebug() << "[UENDEBUG] " << "Restarting LoginForm"; 
+#endif
+    }
 }
 
 GlooxSession::GlooxSession(gloox::Client* client) : client(client)

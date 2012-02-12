@@ -24,6 +24,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QLabel>
 #include <QNetworkAccessManager>
 
 class LoginForm : public QDialog
@@ -32,10 +33,13 @@ Q_OBJECT
 public:
 	LoginForm(QWidget* parent);
 	~LoginForm();
+protected:
+	void closeEvent(QCloseEvent *event);
 private:
 	QLineEdit* login;
 	QLineEdit* password;
 	QLineEdit* nick;
+	QLabel* loginStatus;
 	QCheckBox* isAutoLogin;
 	QCheckBox* isForumLogin;
 	QPushButton* startLogin;
@@ -44,6 +48,8 @@ public slots:
 	int doLogin();
 	int exec();
 	void requestFinish(QNetworkReply* reply);
+signals:
+	void closeSignal();
 };
 
 #endif // LOGINFORM_H

@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QSystemTrayIcon>
 
+class LoginForm;
+
 class uenclient : public QMainWindow
 {
 Q_OBJECT
@@ -14,6 +16,7 @@ public:
     virtual ~uenclient();
     QTabWidget *tabWidget;
     void startSession();
+    void confirmedLogin();
     void show();
     
     void setJabberJID(QString get){ jabberJID = get; };
@@ -33,7 +36,7 @@ public:
     bool isJabberOn;
     bool isTorrentOn;
     bool isSearchOn;
-    bool isSession;
+    bool canStartSession;
     QAction* autoLogin;
 protected:
     void closeEvent(QCloseEvent *event);
@@ -48,12 +51,16 @@ private:
     
     QLabel* displayStatus;
     QSystemTrayIcon* tray;
+    
+    LoginForm* loginForm;
 public slots:
     void showTorrentCreateDialog();
     void updateServicesStatus();
     void trayAction(QSystemTrayIcon::ActivationReason reason);
     void closeThroughtTray();
     void changedAutoLogin(bool state);
+    
+    void showLoginForm();
 private slots:
     void about();
 };
