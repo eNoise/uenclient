@@ -52,6 +52,7 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
 	inChatList = new QListWidget();
 	inputLine = new QLineEdit();
 	chatBox = new QTextBrowser();
+	chatBox->setOpenExternalLinks(true);
 	subjectLine = new QLineEdit();
 
 	chatBox->setStyleSheet("QTextBrowser { background: url('share/icons/chat_background.jpg'); background-repeat: no-repeat; background-attachment: fixed; }");
