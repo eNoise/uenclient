@@ -194,6 +194,7 @@ void uenclient::startSession()
     } else { // Try to restart chat session
 	      delete (ChatDialog*)(((QTabWidget*)centralWidget())->widget(0));
 	      ((QTabWidget*)centralWidget())->insertTab(0, new ChatDialog(this, jabberJID, jabberPassword, jabberNick), tr("Chat"));
+	      ((QTabWidget*)centralWidget())->setCurrentIndex(0);
     } 
 }
 
