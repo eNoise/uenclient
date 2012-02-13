@@ -44,8 +44,8 @@ LoginForm::LoginForm(QWidget* parent) : QDialog(parent)
 	nick = new QLineEdit;
 	loginStatus = new QLabel;
 	startLogin = new QPushButton(tr("Login"));
-	isAutoLogin = new QCheckBox(tr("Auto-login ?"));
-	isForumLogin = new QCheckBox(tr("UAPI login ?"));
+	isAutoLogin = new QCheckBox(tr("Auto-login?"));
+	isForumLogin = new QCheckBox(tr("Uruchie account?"));
 	
 	QVBoxLayout* main = new QVBoxLayout;
 	QHBoxLayout* loginLine = new QHBoxLayout;

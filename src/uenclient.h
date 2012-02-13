@@ -5,6 +5,7 @@
 #include <QTableWidget>
 #include <QLabel>
 #include <QSystemTrayIcon>
+#include <QTimer>
 
 class LoginForm;
 class GlooxSession;
@@ -52,6 +53,9 @@ private:
     
     QLabel* displayStatus;
     QSystemTrayIcon* tray;
+    QTimer* trayBlinkTimer;
+    bool isNewMessages;
+    bool blinkMessageNow;
     
     LoginForm* loginForm;
     friend class GlooxSession;
@@ -63,6 +67,8 @@ public slots:
     void changedAutoLogin(bool state);
     
     void showLoginForm();
+    void trayBlink();
+    void setTrayBlink(bool isBlink = false);
 private slots:
     void about();
 };

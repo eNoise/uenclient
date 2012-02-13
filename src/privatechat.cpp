@@ -23,6 +23,7 @@
 #include <gloox/message.h>
 #include "helper.h"
 #include <time.h>
+#include "uenclient.h"
 
 PrivateChat::PrivateChat(ChatDialog* parent, gloox::Client* c, gloox::JID jid, QString startMsg) : gloox::MessageSession(c, jid), QWidget(parent)
 {
@@ -55,6 +56,7 @@ void PrivateChat::createChatBox()
 	connect(this, SIGNAL(reciveMessage(QString,QString)), SLOT(addToMessageBox(QString,QString)));
 	connect(this, SIGNAL(reciveNotPrivateMessage(QString,QString,QString)), ((ChatDialog*)parent()), SLOT(addToMessageBox(QString,QString,QString)));
 	connect(inputLine, SIGNAL(returnPressed()), this, SLOT(sendMessage()));
+	connect(this, SIGNAL(setTrayBlink(bool)), ((ChatDialog*)parent())->mainWindow, SLOT(setTrayBlink(bool)));
 	
 	registerMessageHandler(this);
 }
@@ -80,6 +82,8 @@ void PrivateChat::addToMessageBox(QString msg, const QString& from)
 	if(msg.startsWith("/me "))
 		format = "<font color=\"#%s\">[%s]* %s %s</font>";
 	Helper::chatTextModify(msg);
+	// update trayicon
+	emit setTrayBlink(true);
 	QString fin = QString().sprintf(format.toUtf8().data(), ((targ != from) ? "ff0000" : "0000ff"), Helper::timeToString(time(NULL), "%H:%M:%S").toUtf8().data(), from.toUtf8().data(), msg.toUtf8().data());
 	chatBox->append(fin);
 }

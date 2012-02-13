@@ -46,6 +46,7 @@ private:
 signals:
     void reciveMessage(QString msg, const QString& from);
     void reciveNotPrivateMessage(QString msg, const QString& from, const QString& nick);
+    void setTrayBlink(bool isBlink);
 public slots:
     void sendMessage();
     void addToMessageBox(QString msg, const QString& from);

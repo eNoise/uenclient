@@ -54,6 +54,7 @@ public:
     ChatDialog(uenclient* main, QString login, QString password, QString nick);
     virtual ~ChatDialog();
     friend class GlooxSession;
+    friend class PrivateChat;
         
     struct Participant : public gloox::MUCRoomParticipant
     {
@@ -148,6 +149,7 @@ signals:
   void startPrivate(QString jid, QString nick, QString defaultMsg = "");
   void startPrivate(gloox::MessageSession* session, QString defaultMsg = "");
   void updateSubject(const QString& thread) const;
+  void setTrayBlink(bool isBlink);
 public slots:
   void sendMessage();
   void subjectUpdated(const QString& thread) const;

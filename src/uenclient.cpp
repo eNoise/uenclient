@@ -53,6 +53,8 @@ uenclient::uenclient()
     trayMenu->addAction(quit);
     tray->setContextMenu(trayMenu);
     tray->show();
+    trayBlinkTimer = new QTimer(this);
+    connect(trayBlinkTimer, SIGNAL(timeout()), this, SLOT(trayBlink()));
     
 #ifndef NDEBUG
     qDebug() << "[UENDEBUG] " << "Init main window finished"; 
@@ -82,9 +84,10 @@ void uenclient::showLoginForm()
 
 void uenclient::show()
 {
-	if(canStartSession)
+	if(canStartSession) {
 		QMainWindow::show();
-	else
+		emit setTrayBlink(false);
+	} else
 		close(); // Temporary close session
 }
 
@@ -196,6 +199,34 @@ void uenclient::startSession()
 	      ((QTabWidget*)centralWidget())->insertTab(0, new ChatDialog(this, jabberJID, jabberPassword, jabberNick), tr("Chat"));
 	      ((QTabWidget*)centralWidget())->setCurrentIndex(0);
     } 
+}
+
+void uenclient::trayBlink()
+{
+	if(!isNewMessages) {
+		if(!blinkMessageNow) {
+			tray->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/uenicon.png")); // back original icon
+			blinkMessageNow = false;
+		}
+		return;
+	}
+	if(blinkMessageNow)
+		tray->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/blinkuenicon.png"));
+	else
+		tray->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/uenicon.png"));
+	blinkMessageNow = !blinkMessageNow;
+}
+
+void uenclient::setTrayBlink(bool isBlink)
+{
+	if(isBlink && isHidden()) {
+		isNewMessages = true;
+		trayBlinkTimer->start(800);
+	} else {
+		isNewMessages = false;
+		trayBlinkTimer->stop();
+		trayBlink();
+	}
 }
 
 void uenclient::updateServicesStatus()

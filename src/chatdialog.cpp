@@ -91,6 +91,7 @@ void ChatDialog::createWindow(QString login, QString password, QString nick)
 	connect(this, SIGNAL(rebuildUserList()), this, SLOT(updateUserList()));
 	connect(this, SIGNAL(changeUserState(bool,QString,QString)), SLOT(printUserState(bool,QString,QString)));
 	connect(this, SIGNAL(startPrivate(QString,QString,QString)), SLOT(beginPrivate(QString,QString,QString)));
+	connect(this, SIGNAL(setTrayBlink(bool)), mainWindow, SLOT(setTrayBlink(bool)));
 #ifndef NDEBUG
     qDebug() << "[UENDEBUG] " << "Start gloox session"; 
 #endif
@@ -343,10 +344,16 @@ void ChatDialog::addToMessageBox(QString msg, const QString& from, const QString
 	}
 	
 	QString format;
-	if(findJid)
+	if(findJid) {
 		format = "<font color=\"#%s\">[%s] &lt;%s&gt;</font> %s";
-	else
+		if(msg.contains(mainWindow->getJabberNick())) {
+			format = "<font color=\"#%s\">[%s] &lt;%s&gt;</font> <font color=\"red\">%s</font>";
+			// update tray icon
+			emit setTrayBlink(true);
+		}
+	} else {
 		format = "<font color=\"#%s\">[%s] &lt;%s&gt; %s</font>";
+	}
 	if(msg.startsWith("/me "))
 		format = "<font color=\"#%s\">[%s]* %s %s</font>";
 	Helper::chatTextModify(msg);
