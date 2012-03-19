@@ -47,7 +47,7 @@ uenclient::uenclient()
     //Tray icon
     tray = new QSystemTrayIcon(this);
     tray->setToolTip(tr("UeNClient tray menu"));
-    tray->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/uenicon.png"));
+    tray->setIcon(QIcon(":/resources/uenicon.png"));
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayAction(QSystemTrayIcon::ActivationReason)));
     QMenu* trayMenu = new QMenu(this);
     trayMenu->addAction(quit);
@@ -126,7 +126,7 @@ void uenclient::trayAction(QSystemTrayIcon::ActivationReason reason)
 void uenclient::about()
 {
     QLabel *icon = new QLabel;
-    icon->setPixmap(QPixmap(QString(CLIENT_DATA_DIR) + "/icons/uenlogo_350.png"));
+    icon->setPixmap(QPixmap(":/resources/uenlogo_350.png"));
     
     QLabel *text = new QLabel;
     text->setWordWrap(true);
@@ -205,15 +205,15 @@ void uenclient::trayBlink()
 {
 	if(!isNewMessages) {
 		if(!blinkMessageNow) {
-			tray->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/uenicon.png")); // back original icon
+			tray->setIcon(QIcon(":/resources/uenicon.png")); // back original icon
 			blinkMessageNow = false;
 		}
 		return;
 	}
 	if(blinkMessageNow)
-		tray->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/blinkuenicon.png"));
+		tray->setIcon(QIcon(":/resources/blinkuenicon.png"));
 	else
-		tray->setIcon(QIcon(QString(CLIENT_DATA_DIR) + "/icons/uenicon.png"));
+		tray->setIcon(QIcon(":/resources/uenicon.png"));
 	blinkMessageNow = !blinkMessageNow;
 }
 

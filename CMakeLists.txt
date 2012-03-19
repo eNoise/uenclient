@@ -101,6 +101,9 @@ else (UPDATE_TRANSLATIONS)
 endif (UPDATE_TRANSLATIONS) 
 #add_custom_target (uenclient DEPENDS ${UEN_QM})
 
+qt4_add_resources(UEN_RCC
+				uenclient.qrc
+)
 
 set(UEN_LIBS
 		${QT_QTCORE_LIBRARY} 
@@ -142,7 +145,7 @@ include_directories(
 
 
 # Compilation
-add_executable(uenclient ${UEN_CPP} ${UEN_UI} ${UEN_QM})
+add_executable(uenclient ${UEN_CPP} ${UEN_UI} ${UEN_QM} ${UEN_RCC})
 target_link_libraries(uenclient ${UEN_LIBS})
 
 
